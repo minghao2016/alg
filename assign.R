@@ -18,16 +18,41 @@ find_ref_point <- function(point, rp){
 }
 
 gen_refs <- function(data, rp){
-  ref <- matrix(ncol=2)
-  colnames(ref) <- c("rp", "data")
+  ref <- data.frame()
     for(point in 1:nrow(data)){
       p_ref <- find_ref_point(data[point,], rp)
       ref <- rbind(ref,c(p_ref,point))
     }
-  ref <- ref[-1,]
+  colnames(ref) <- c("rp", "data")
   return(ref)
 }
 
-#need to write the niching part
-points <- a[sample(nrow(a),5),][,2]
-s <- npf[points,]
+sel_points <- function(ref_list, dat, k){
+  u <- unique(ref_list[,1])
+  r <- data.frame()
+  
+  for(i in u){
+    c <- length(a[a$rp==i,1])
+    x <- c(i,c)
+    r <- rbind(r,x)
+  } 
+  colnames(r) <- c("rp", "count")
+  r <- r[order(r$count),]
+  
+  points <- c()
+  while(length(points)<k){
+    for(i in 1:nrow(r)){
+      val <- r[i,1]
+      point <- ref_list[ref_list$rp==val,][,2]
+      if(length(point)>1){
+        point <- sample(point,1)
+      }
+      if(point %in% points){next}
+      else{
+        points[i] <- point 
+      }
+    }
+  }
+  res <- dat[points,]
+  return(res)
+}
