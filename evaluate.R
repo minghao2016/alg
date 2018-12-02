@@ -88,24 +88,25 @@ get_precision <- function(res){
 #######################################################################################
 
 
-
 evaluate_ind <- function(ind, df, target, objectives){
   
   dat <- select_columns(df, target, ind)
   res <- perform_classification(dat, target)
   
+  get_objective_values <- function(a) {
+    # call each function to a
+    lapply(objectives, function(f) f(a))
+  }
+  
+  ans <- get_objective_values(res)
+  
   obj_vals <- data.frame()
-  #obj_names <- c()
-  for(i in 1:length(objectives)){
-    x <- objectives[[i]](res)
-    obj_vals[1,i] <- x
-    #  obj_names[i] <- as.character(substitute(objectives[[i]]))
+  
+  for(i in 1:length(ans)){
+    obj_vals[1,i] <- ans[[i]]
   }
   n <- length(obj_vals)+1
   obj_vals[1,n]<- sum(ind)
-  #obj_names[n] <- "n features"
-  
-  #colnames(obj_vals) <- obj_names
   
   return(obj_vals)
 }
