@@ -1,6 +1,8 @@
 library("rPref")
 library("plotly")
 library("dplyr")
+library("xgboost")
+library("mlr")
 
 #INITIAL POPULATION
 
@@ -22,50 +24,47 @@ generate_init_pop <- function(data, size){
 #NON-DOMINATED SORTING
 
 non_dom_sort <- function(pop, pareto_criteria){
+  #works with data frames only
   sorted_pop <- psel(pop, pareto_criteria, top = nrow(pop), show_level = TRUE)
   return(sorted_pop)
 }
 
 #3D PLOT PARETO FRONTS
-plot_ly(sorted_pop, x=~obj1, y=~obj2, z=~obj3, 
+plot_pareto_3d <- function(sorted_pop, x, y, z){ 
+  plt <- plot_ly(sorted_pop, x=x, y=y, z=z, 
         type="scatter3d", mode="markers", color=~.level)
+  return(plt)
+}
+
+
+#######################################################################################
+
+##################     CROSSOVER AND MUTATION   #######################################
+
+#######################################################################################
+
 
 
 #CROSSOVER
 
 crossover <- function(ind1, ind2){
   child <- vector(length=length(ind1))
-  
-  gene_a <- as.integer(runif(1,0,1)*length(ind1))
-  gene_b <- as.integer(runif(1,0,1)*length(ind1))
-  
-  start_gene <- max(min(gene_a, gene_b),1)
-  end_gene <- min(max(gene_a, gene_b), length(ind1))
-  
-  print(start_gene)
-  print(end_gene)
-  
-  for(i in start_gene:end_gene){
-    child[i] <- ind1[i]
-  }
-  
-  if(start_gene != 1){
-    for(i in 1:(start_gene-1)){
-      child[i] <- ind2[i]
-    }
-  }
-  if(end_gene!=length(ind1)){
-    for(i in (end_gene+1):length(ind1)){
+  for(i in 1:length(child)){
+    if(runif(1,0,1)>0.5){
+      child[i] <- ind1[i]
+    } else {
       child[i] <- ind2[i]
     }
   }
   return(child)
 }
 
+
 create_children <- function(mating_pool){
   children <- list()
   len <- length(mating_pool)
-  for(i in 1:(round(len/2,0))){
+  #for(i in 1:(round(len/2,0))){
+  for(i in 1:len){
     children[[i]] <- crossover(mating_pool[[i]],mating_pool[[(len-i+1)]])
   }
   return(children)
@@ -73,6 +72,7 @@ create_children <- function(mating_pool){
 
 
 #MUTATION
+
 
 mutate_ind <- function(ind, mutation_rate){
   for(i in 1:length(ind)){
@@ -83,7 +83,7 @@ mutate_ind <- function(ind, mutation_rate){
   return(ind)
 }
 
-mutate_pop <- function(pop, mutation_rate){
+mutate_pop <- function(pop, mutation_rate=0.1){
   mutated_pop <- mpop <- lapply(pop,mutate_ind,mutation_rate)
   return(mutated_pop)  
 }
@@ -93,80 +93,103 @@ mutate_pop <- function(pop, mutation_rate){
 #PREDICTION
 
 
+#######################################################################################
 
-prep_dataset <- function(dat, smp_size=0.75, ind_features, target){
-  target_dat <- dat %>% select(target) 
-  fdat <- dat %>% select(-target)
-  fdat <- fdat[,as.logical(ind_features)]
-  tr_dat <- cbind(target_dat, fdat)
-  norm_dat <- normalizeFeatures(tr_dat, target)
+##################     EVALUATION STEP       #########################################
+
+#######################################################################################
+
+
+select_columns <- function(df, target, ind){
   
-  smp_size = floor(smp_size*nrow(niris))
+  goods <- df %>% select(target)
+  #goods <- as.logical(as.numeric(as.character(goods$target)))
+  
+  cnames <- colnames(df)
+  cnames <- cnames[-which(cnames==target)]
+  
+  selected_columns <- cnames[as.logical(ind)]
+  
+  df <- df %>% select(selected_columns)
+  colnames(df)
+  #df<- df %>% select(-GOOD) 
+  df <- df %>% dummy.data.frame() 
+  df <- cbind(df,goods)
+  #df <- na.omit(df,cols=target)
+  return(df)
+}
+
+head(df)
+
+
+perform_classification <- function(df, target, remove_NA=TRUE){
+  
+  if(remove_NA==TRUE){
+    df <- na.omit(df,cols=target)
+  }
+  ndf <- normalizeFeatures(df, target = target)
+  
+  smp_size = floor(0.75*nrow(df))
   
   set.seed(123)
-  train_ind <- sample(seq_len(nrow(norm_dat)), size = smp_size )
+  train_ind <- sample(seq_len(nrow(df)), size = smp_size )
   
-  train_dat <- norm_dat[train_ind,]
-  test_dat <- norm_dat[-train_ind,]
+  train_dat <- df[train_ind,]
+  test_dat <- df[-train_ind,]
   
-  trainTask <- makeClassifTask(data = train_dat, target = target)
+  trainTask <- makeClassifTask(data = train_dat, target = target, positive=1)
   testTask <- makeClassifTask(data = test_dat, target = target)
-  res <- list(trainTask, testTask)
-  return(res)
-}
-
-set.seed(1)
-
-#NEED TO WORK ON PARAMS
-xgb_learner <- makeLearner(
-  "classif.xgboost",
-  predict.type = "response",
-  par.vals = list(
-    eval_metric = "merror",
-    nrounds = 200
+  
+  set.seed(1)
+  
+  xgb_learner <- makeLearner(
+    "classif.xgboost",
+    predict.type = "response",
+    par.vals = list(
+      objective = "binary:logistic",
+      eval_metric = "error",
+      nrounds = 200
+    )
   )
-)
-
-xgb_model <- train(xgb_learner, task = trainTask)
-
-pred_result <- predict(xgb_model, testTask)
-
-accuracy <- function(pred_result){
-  ans <- mean(pred_result$data$truth == pred_result$data$responce)
-  return(ans)
-}
-
-head(pred_result$data)
-
-#CLASSIFY
-
-classify <- function(ind, dat, target, smp_size=0.75){
-  dat <- prep_dataset(dat=dat, ind_features = ind, target = target)
-  trainTask <- dat[[1]]
-  testTask <- dat[[2]]
   xgb_model <- train(xgb_learner, task = trainTask)
-  
-  pred_result <- predict(xgb_model, testTask)
-  return(pred_result)
+  result <- predict(xgb_model, testTask)
 }
 
-#EVALUATE
-evaluate_objectives <- function(pred_result, ind){
-  n_features <- sum(ind)
-  acc <- accuracy(pred_result)
+
+
+evaluate_ind <- function(ind, df, target, objectives){
   
-  ind_eval <- list(ind,n_features,acc)
-  return(ind_eval)
+  dat <- select_columns(df, target, ind)
+  res <- perform_classification(dat, target)
+  
+  obj_vals <- data.frame()
+  #obj_names <- c()
+  for(i in 1:length(objectives)){
+    x <- objectives[[i]](res)
+    obj_vals[1,i] <- x
+    #  obj_names[i] <- as.character(substitute(objectives[[i]]))
+  }
+  n <- length(obj_vals)+1
+  obj_vals[1,n]<- sum(ind)
+  #obj_names[n] <- "n features"
+  
+  #colnames(obj_vals) <- obj_names
+  
+  return(obj_vals)
 }
 
-evaluation_step <- function(pop){
-  pop_eval <- vector("list", length = length(pop))
+
+evaluate_population <- function(pop, df, target, objectives){
+  evaluated_pop <- data.frame()
   
   for(i in 1:length(pop)){
     ind <- pop[[i]]
-    ind_eval <- ind %>%
-                classify(dat) %>%
-                evaluate_objectives(ind)
-    pop_eval[[i]] <- ind_eval
+    evaluated_ind <- evaluate_ind(ind, df, target, objectives)
+    rownames(evaluated_ind)<-i
+    
+    evaluated_pop <- rbind(evaluated_pop, evaluated_ind)
   }
+  return(evaluated_pop)
 }
+
+
