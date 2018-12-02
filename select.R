@@ -84,7 +84,6 @@ ref_points <- function(n_objectives){
   #N = number of points
   a <- m+p-1
   n <- factorial(a)/(factorial(p)*factorial(a-p))
-  print(n)
   
   #divisions per side
   d <- n/m-1
@@ -94,7 +93,6 @@ ref_points <- function(n_objectives){
   for(j in 1:d){
     options[(2+j)]<- step*j
   }
-  print(options)
   
   point <- vector(length=m)
   point[1]<-1
@@ -109,7 +107,6 @@ ref_points <- function(n_objectives){
       point[col] <- sample(options,1)
     }
     if(sum(point)==1){
-      print(point)
       set <- rbind(set,point)
     }
   }
