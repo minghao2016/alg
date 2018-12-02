@@ -8,6 +8,7 @@
 
 #######################################################################################
 
+#Input: Pareto Front L, number of vacant spots "k",  
 
 
 compute_ideal_point <- function(pareto_front){
@@ -117,11 +118,14 @@ ref_points <- function(n_objectives){
 }
 
 
+
 #######################################################################################
 
 ##################            NICHING         #########################################
 
 #######################################################################################
+
+
 
 find_ref_point <- function(point, rp){
   res <- matrix(ncol=4, nrow=nrow(rp))
@@ -147,11 +151,12 @@ gen_refs <- function(data, rp){
 }
 
 sel_points <- function(ref_list, dat, k){
+  ref_list <- data.frame(ref_list)
   u <- unique(ref_list[,1])
   r <- data.frame()
   
   for(i in u){
-    c <- length(a[a$rp==i,1])
+    c <- length(ref_list[ref_list$rp==i,1])
     x <- c(i,c)
     r <- rbind(r,x)
   } 
@@ -159,7 +164,7 @@ sel_points <- function(ref_list, dat, k){
   r <- r[order(r$count),]
   
   points <- c()
-  while(length(points)<k){
+  while(length(points)< k){
     for(i in 1:nrow(r)){
       val <- r[i,1]
       point <- ref_list[ref_list$rp==val,][,2]
@@ -168,7 +173,7 @@ sel_points <- function(ref_list, dat, k){
       }
       if(point %in% points){next}
       else{
-        points[i] <- point 
+        points[length(points)+1] <- point 
       }
     }
   }
