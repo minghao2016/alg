@@ -151,7 +151,7 @@ perform_classification <- function(df, target, remove_NA=TRUE){
 }
 
 
-evaluate_ind <- function(ind, df, target, objectives, num_features = TRUE){
+evaluate_ind <- function(ind, df, target, objectives, num_features = num_features){
   
   dat <- select_columns(df, target, ind)
   res <- perform_classification(dat, target)
@@ -178,12 +178,13 @@ evaluate_ind <- function(ind, df, target, objectives, num_features = TRUE){
 }
 
 
-evaluate_population <- function(pop, df, target, objectives, num_features = TRUE){
+evaluate_population <- function(pop, df, target, objectives, 
+                                num_features = num_features){
   evaluated_pop <- data.frame()
   
   for(i in 1:length(pop)){
     ind <- pop[[i]]
-    evaluated_ind <- evaluate_ind(ind, df, target, objectives)
+    evaluated_ind <- evaluate_ind(ind, df, target, objectives, num_features)
     rownames(evaluated_ind)<-i
     
     evaluated_pop <- rbind(evaluated_pop, evaluated_ind)
@@ -319,11 +320,11 @@ ref_points <- function(n_objectives){
 
 
 find_ref_point <- function(point, rp){
-  res <- matrix(ncol=4, nrow=nrow(rp))
+  res <- matrix(ncol=ncol(point)+1, nrow=nrow(rp))
   for(i in 1:nrow(rp)){
     d <- dist(rbind(point,rp[i,]))
-    res[i,c(1,2,3)] <- rp[i,]
-    res[i,4] <- d
+    res[i,1:(ncol(res)-1)] <- rp[i,]
+    res[i,ncol(res)] <- d
   }
   ref <- rp[which.min(res[,4]),]
   ans <- which.min(res[,4])
@@ -412,8 +413,7 @@ select_next_generation <- function(sorted_comb_pop, combined_pop, rp, n){
     
     pf <- sorted_comb_pop[which(sorted_comb_pop$.level==lvl),]
     pf <- pf[,-ncol(pf)]
-    print("Pareto Front")
-    print(pf)
+
     len <- length(next_pop)
 
     if((nrow(pf)+len) <= n){
@@ -463,7 +463,8 @@ alg <- function(df, target, obj_list, obj_names,
   pop <- generate_init_pop(df, n)    
   
   #getting values for objective functions
-  epop <- evaluate_population(pop = pop,df = df, target = target, objectives = obj_list)
+  epop <- evaluate_population(pop = pop,df = df, target = target, 
+                              objectives = obj_list, num_features = num_features)
   colnames(epop)<-obj_names
   
   print(epop)
@@ -483,8 +484,8 @@ alg <- function(df, target, obj_list, obj_names,
     
     #evaluate obj fns for children
     echildren <- evaluate_population(pop = mchildren,df = df, target = target, 
-                                     objectives = obj_list)
-    colnames(echildren)<-c("acc", "prec", "nf")
+                                     objectives = obj_list, num_features=num_features)
+    colnames(echildren) <- obj_names
     rownames(echildren) <- (length(pop)+1):(length(pop)+length(children))
     
     #combine parent and child
