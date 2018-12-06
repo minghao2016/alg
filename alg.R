@@ -1,5 +1,9 @@
+if (require(pacman) == F) install.packages("pacman")
 library("pacman")
 p_load("caret", "rPref", "plotly", "dplyr", "xgboost", "mlr", "dummies")
+
+cd <- dirname(rstudioapi::getActiveDocumentContext()$path)
+
 
 #INITIAL POPULATION
 
@@ -139,8 +143,8 @@ perform_classification <- function(df, target, model, remove_NA=TRUE){
   
   learner <- model
 
-  xgb_model <- train(learner, task = trainTask)
-  result <- predict(xgb_model, testTask)
+  mlr_model <- train(learner, task = trainTask)
+  result <- predict(mlr_model, testTask)
 }
 
 
