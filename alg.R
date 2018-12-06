@@ -1,11 +1,5 @@
-library("caret")    #used only for confusionMatrix(), would gladly replace it
-library("rPref")
-library("plotly")
-library("dplyr")
-library("xgboost")
-library("mlr")
-library("dummies")
-
+library("pacman")
+p_load("caret", "rPref", "plotly", "dplyr", "xgboost", "mlr", "dummies")
 
 #INITIAL POPULATION
 
@@ -35,7 +29,7 @@ non_dom_sort <- function(pop, pareto_criteria){
 #3D PLOT PARETO FRONTS
 plot_pareto_3d <- function(sorted_pop, x, y, z){ 
   plt <- plot_ly(sorted_pop, x=x, y=y, z=z, 
-        type="scatter3d", mode="markers", color=~.level)
+                 type="scatter3d", mode="markers", color=~.level)
   return(plt)
 }
 
@@ -122,8 +116,6 @@ select_columns <- function(df, target, ind){
   return(df)
 }
 
-head(df)
-
 
 perform_classification <- function(df, target, remove_NA=TRUE){
   
@@ -151,7 +143,7 @@ perform_classification <- function(df, target, remove_NA=TRUE){
     par.vals = list(
       objective = "binary:logistic",
       eval_metric = "error",
-      nrounds = 200
+      early_stopping_rounds = 10
     )
   )
   xgb_model <- train(xgb_learner, task = trainTask)
@@ -159,7 +151,7 @@ perform_classification <- function(df, target, remove_NA=TRUE){
 }
 
 
-evaluate_ind <- function(ind, df, target, objectives){
+evaluate_ind <- function(ind, df, target, objectives, num_features = TRUE){
   
   dat <- select_columns(df, target, ind)
   res <- perform_classification(dat, target)
@@ -176,14 +168,17 @@ evaluate_ind <- function(ind, df, target, objectives){
   for(i in 1:length(ans)){
     obj_vals[1,i] <- ans[[i]]
   }
-  n <- length(obj_vals)+1
-  obj_vals[1,n]<- sum(ind)
+  
+  if(num_features == TRUE){
+    n <- length(obj_vals)+1
+    obj_vals[1,n]<- sum(ind)
+  }
   
   return(obj_vals)
 }
 
 
-evaluate_population <- function(pop, df, target, objectives){
+evaluate_population <- function(pop, df, target, objectives, num_features = TRUE){
   evaluated_pop <- data.frame()
   
   for(i in 1:length(pop)){
@@ -392,3 +387,128 @@ execute_selection <- function(pf, k){
   selected_points <- npf %>% gen_refs(rp) %>% sel_points(npf,k)
   return(selected_points)
 }
+
+
+
+
+#######################################################################################
+
+##################            ALGORITHM BUILDER    ####################################
+
+#######################################################################################
+
+
+
+
+#iterator for selecting points from current generation
+
+
+#iterator for selecting points from current generation
+select_next_generation <- function(sorted_comb_pop, combined_pop, rp, n){
+  next_pop = c()
+  #n <- 50
+  lvl <- 1
+  while(length(next_pop) != n){
+    
+    pf <- sorted_comb_pop[which(sorted_comb_pop$.level==lvl),]
+    pf <- pf[,-ncol(pf)]
+    print("Pareto Front")
+    print(pf)
+    len <- length(next_pop)
+
+    if((nrow(pf)+len) <= n){
+      
+      for(i in 1:nrow(pf)){
+        next_pop[len+i] <- rownames(pf)[i]
+      }
+      
+      lvl <- lvl+1
+      
+    } else {
+      k <- n-len
+      selected_points <- execute_selection(pf, k)
+      
+      for(i in 1:k){
+        next_pop[len+i] <- rownames(selected_points)[i]
+      }
+    }
+  }
+  
+  next_gen = list()
+  eval_next_gen = data.frame()
+  for(i in 1:length(next_pop)){
+    id <- as.integer(next_pop[i])
+    next_gen[[i]] <- combined_pop[[id]]
+    eval_next_gen <- rbind(eval_next_gen, sorted_comb_pop[id,-ncol(sorted_comb_pop)])
+  }
+  ans <- list(next_gen, eval_next_gen)
+  return(ans)
+}
+
+
+
+#wrap 
+
+
+alg <- function(df, target, obj_list, obj_names, 
+                pareto, n, max_gen, num_features = TRUE){  
+  
+  #m = number of objective functions
+  m <- length(obj_list)+1
+  
+  #generate reference points
+  rp <- ref_points(m)
+  
+  #generating initial population
+  pop <- generate_init_pop(df, n)    
+  
+  #getting values for objective functions
+  epop <- evaluate_population(pop = pop,df = df, target = target, objectives = obj_list)
+  colnames(epop)<-obj_names
+  
+  print(epop)
+  
+  current_generation <- 0
+  
+  while(current_generation < max_gen){
+    
+    # assigning new id's to previously selected pouints
+    rownames(epop) <- 1:nrow(epop)
+    
+    #crossover
+    children <- create_children(pop) 
+    
+    #mutation
+    mchildren <- mutate_pop(children, 0.1)
+    
+    #evaluate obj fns for children
+    echildren <- evaluate_population(pop = mchildren,df = df, target = target, 
+                                     objectives = obj_list)
+    colnames(echildren)<-c("acc", "prec", "nf")
+    rownames(echildren) <- (length(pop)+1):(length(pop)+length(children))
+    
+    #combine parent and child
+    combined_pop <- c(pop, mchildren) #individuals with actual binary vectors
+    
+    comb_pop <- rbind(epop,echildren) #id's of individuals with obj funs values
+    
+    #non-dominated sort
+    sorted_comb_pop <- non_dom_sort(comb_pop, pareto)
+    
+    #select individs for next generation
+    res <- select_next_generation(sorted_comb_pop, combined_pop, rp, n)
+    pop <- res[[1]]
+    epop <- res[[2]]
+    
+    print("Selected generation")
+    print(epop)
+    
+    current_generation <- current_generation + 1
+    
+    print(current_generation)
+  }
+  result <- pop
+  return(result)
+}
+
+
