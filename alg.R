@@ -117,7 +117,7 @@ select_columns <- function(df, target, ind){
 }
 
 
-perform_classification <- function(df, target, remove_NA=TRUE){
+perform_classification <- function(df, target, model, remove_NA=TRUE){
   
   if(remove_NA==TRUE){
     df <- na.omit(df,cols=target)
@@ -137,24 +137,17 @@ perform_classification <- function(df, target, remove_NA=TRUE){
   
   set.seed(1)
   
-  xgb_learner <- makeLearner(
-    "classif.xgboost",
-    predict.type = "response",
-    par.vals = list(
-      objective = "binary:logistic",
-      eval_metric = "error",
-      early_stopping_rounds = 10
-    )
-  )
-  xgb_model <- train(xgb_learner, task = trainTask)
+  learner <- model
+
+  xgb_model <- train(learner, task = trainTask)
   result <- predict(xgb_model, testTask)
 }
 
 
-evaluate_ind <- function(ind, df, target, objectives, num_features = num_features){
+evaluate_ind <- function(ind, df, target, objectives, model = model, num_features = num_features){
   
   dat <- select_columns(df, target, ind)
-  res <- perform_classification(dat, target)
+  res <- perform_classification(dat, target, model = model)
   
   get_objective_values <- function(a) {
     # call each function to a
@@ -179,12 +172,13 @@ evaluate_ind <- function(ind, df, target, objectives, num_features = num_feature
 
 
 evaluate_population <- function(pop, df, target, objectives, 
+                                model = model,
                                 num_features = num_features){
   evaluated_pop <- data.frame()
   
   for(i in 1:length(pop)){
     ind <- pop[[i]]
-    evaluated_ind <- evaluate_ind(ind, df, target, objectives, num_features)
+    evaluated_ind <- evaluate_ind(ind, df, target, objectives, model = model, num_features)
     rownames(evaluated_ind)<-i
     
     evaluated_pop <- rbind(evaluated_pop, evaluated_ind)
@@ -451,7 +445,9 @@ select_next_generation <- function(sorted_comb_pop, combined_pop, rp, n){
 
 
 alg <- function(df, target, obj_list, obj_names, 
-                pareto, n, max_gen, num_features = TRUE){  
+                pareto, n, max_gen,
+                model,
+                num_features = TRUE){  
   
   #m = number of objective functions
   m <- length(obj_list)+1
@@ -464,7 +460,9 @@ alg <- function(df, target, obj_list, obj_names,
   
   #getting values for objective functions
   epop <- evaluate_population(pop = pop,df = df, target = target, 
-                              objectives = obj_list, num_features = num_features)
+                              objectives = obj_list, 
+                              model = model,
+                              num_features = num_features)
   colnames(epop)<-obj_names
   
   print(epop)
@@ -484,7 +482,9 @@ alg <- function(df, target, obj_list, obj_names,
     
     #evaluate obj fns for children
     echildren <- evaluate_population(pop = mchildren,df = df, target = target, 
-                                     objectives = obj_list, num_features=num_features)
+                                     objectives = obj_list, 
+                                     model = model,
+                                     num_features=num_features)
     colnames(echildren) <- obj_names
     rownames(echildren) <- (length(pop)+1):(length(pop)+length(children))
     
