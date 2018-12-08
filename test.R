@@ -41,9 +41,10 @@ obj_names <- c("acc", "prec" , "spec", "nf") #names of objective fns will be use
 pareto <- high(acc)*high(prec)*high(spec)*low(nf) # high = maximize
 
 ans <- alg(df, "GOOD", obj_list, obj_names, pareto, 
-          n = 10, max_gen = 10, 
+          n = 20, max_gen = 20, 
           model = xgb_learner,
-          num_features = TRUE)
+          num_features = TRUE,
+          mutation_rate = 0.2)
 
 ans
 
@@ -52,7 +53,7 @@ ans
 #if you want to visualize the result in terms of objectives
 
 pop <- ans
-epop <- evaluate_population(pop = pop,df = df, target = "GOOD", 
+epop <- evaluate_population(pop = pop,df = df, target = "GOOD", model = xgb_learner,
                             objectives = obj_list, num_features = TRUE)
 colnames(epop)<-c("acc", "prec", "spec", "nf")
 spop <- non_dom_sort(epop, pareto)
@@ -63,8 +64,22 @@ plt
 #view selected column names
 
 cols <- lapply(ans,as.logical)
+res <- data.frame()
 for(i in 1:length(cols)){
   print(i)
-  print(colnames(df[,cols[[i]]]))
+  for(j in 1:20){
+    print(j)
+    res[i,j] <- ans[[i]][j]
+    #print(colnames(df[,cols[[i]]]))
+  }
 }
+for(i in 1:20){
+  res[11,i] <- sum(res[,i])/10
+}
+
+colnames(res) <- colnames(df)[-length(df)]
+
+
+cols
+
 
