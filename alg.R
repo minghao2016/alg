@@ -7,18 +7,21 @@ cd <- dirname(rstudioapi::getActiveDocumentContext()$path)
 
 #INITIAL POPULATION
 
-generate_ind <- function(len){
-  ind <- sample(0:1, size = len, replace = TRUE)
+generate_ind <- function(len, p){
+  ind <- sample(0:1, size = len, replace = TRUE, prob = c(p,1-p))
   return(ind)
 } 
 
+
 generate_init_pop <- function(data, size){
+  
   len <- ncol(data)-1
   population <- list()
+  probs <- seq(0.1,0.9,length.out = size)
+  
   for(i in 1:size){
-    population[[i]] <- generate_ind(len)
+    population[[i]] <- generate_ind(len,probs[i])
   }
-  #population <- rep(generate_ind(len), size)
   return(population)
 }
 
@@ -84,7 +87,7 @@ mutate_ind <- function(ind, mutation_rate){
   return(ind)
 }
 
-mutate_pop <- function(pop, mutation_rate=0.1){
+mutate_pop <- function(pop, mutation_rate=mutation_rate){
   mutated_pop <- mpop <- lapply(pop,mutate_ind,mutation_rate)
   return(mutated_pop)  
 }
@@ -451,7 +454,8 @@ select_next_generation <- function(sorted_comb_pop, combined_pop, rp, n){
 alg <- function(df, target, obj_list, obj_names, 
                 pareto, n, max_gen,
                 model,
-                num_features = TRUE){  
+                num_features = TRUE,
+                mutation_rate=0.1){  
   
   #m = number of objective functions
   m <- length(obj_list)+1
