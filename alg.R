@@ -1,6 +1,6 @@
 if (require(pacman) == F) install.packages("pacman")
 library("pacman")
-p_load("rPref", "plotly", "dplyr", "xgboost", "mlr" )
+p_load("rPref", "plotly", "dplyr", "xgboost", "mlr" ,'EMP' )
 
 cd <- dirname(rstudioapi::getActiveDocumentContext()$path)
 
@@ -131,31 +131,6 @@ select_columns <- function(df, target, ind){
 }
 
 
-#perform_classification <- function(df, target, model, remove_NA=TRUE){
-#  
-#  if(remove_NA==TRUE){
-#    df <- na.omit(df,cols=target)
-#  }
-#  ndf <- normalizeFeatures(df, target = target)
-#  
-#  smp_size = floor(0.75*nrow(df))
-#  
-#  set.seed(123)
-#  train_ind <- sample(seq_len(nrow(df)), size = smp_size )
-#  
-#  train_dat <- df[train_ind,]
-#  test_dat <- df[-train_ind,]
-#  
-#  trainTask <- makeClassifTask(data = train_dat, target = target, positive=1)
-#  testTask <- makeClassifTask(data = test_dat, target = target)
-#  
-#  set.seed(1)
-#  
-#  learner <- model
-#  
-#  mlr_model <- train(learner, task = trainTask)
-#  result <- predict(mlr_model, testTask)
-#}
 
 perform_classification <- function(df, target, model, resampling., remove_NA=TRUE){
   
@@ -174,12 +149,14 @@ perform_classification <- function(df, target, model, resampling., remove_NA=TRU
   
   learner <- model
   
-  rdesc = resampling
+  rdesc <- resampling
 
   mlr_model <- train(learner, task = trainTask)
   
-  pred <- resample(xgb_learner, trainTask, rdesc, measures = list(mmce, fpr, fnr, timetrain))
+  pred <- resample(xgb_learner, trainTask, rdesc, show.info = FALSE,
+                   measures = list(mmce, fpr, fnr, timetrain))
   res <- pred$pred
+  return(res)
 }
 
 
