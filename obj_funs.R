@@ -1,3 +1,5 @@
+
+
 get_acc <- function(res){
   cm <- calculateROCMeasures(res)
   acc <- as.numeric(cm$measures$acc)
@@ -17,14 +19,20 @@ get_tnr <- function(res){
   return(tnr)
 }
 
-xgb_learner <- makeLearner(
-  "classif.xgboost",
-  predict.type = "response",
-  par.vals = list(
-    objective = "binary:logistic",
-    eval_metric = "error",
-    early_stopping_rounds = 10
-  )
-)
+f_auc <- function(pred){
+  auc <- mlr::performance(pred, auc)
+  return(as.numeric(auc))
+}
 
-resampling <- makeResampleDesc("CV", iters = 5)
+emp <- function(pred){
+  m <- empCreditScoring(pred$data$prob.1, pred$data$truth)
+  emp <- m$EMPC
+  return(as.numeric(emp))
+}
+
+
+
+#d = generateThreshVsPerfData(pred, measures = list(fpr, tpr, mmce))
+#plotROCCurves(d)
+#mlr::performance(pred$pred, auc)
+#plotThreshVsPerf(d)
