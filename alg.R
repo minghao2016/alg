@@ -157,7 +157,7 @@ select_columns <- function(df, target, ind){
 #  result <- predict(mlr_model, testTask)
 #}
 
-perform_classification <- function(df, target, model, remove_NA=TRUE){
+perform_classification <- function(df, target, model, resampling., remove_NA=TRUE){
   
   if(remove_NA==TRUE){
     df <- na.omit(df,cols=target)
@@ -173,18 +173,23 @@ perform_classification <- function(df, target, model, remove_NA=TRUE){
   set.seed(1)
   
   learner <- model
-  rdesc = makeResampleDesc("CV", iters = 5)
+  
+  rdesc = resampling
 
   mlr_model <- train(learner, task = trainTask)
+  
   pred <- resample(xgb_learner, trainTask, rdesc, measures = list(mmce, fpr, fnr, timetrain))
   res <- pred$pred
 }
 
 
-evaluate_ind <- function(ind, df, target, objectives, model = model, num_features = num_features){
+evaluate_ind <- function(ind, df, target, objectives, model = model, 
+                         resampling. = resampling,
+                         num_features = num_features){
   
   dat <- select_columns(df, target, ind)
-  res <- perform_classification(dat, target, model = model)
+  res <- perform_classification(dat, target, model = model, 
+                                resampling = resampling)
   
   get_objective_values <- function(a) {
     # call each function to a
@@ -210,12 +215,15 @@ evaluate_ind <- function(ind, df, target, objectives, model = model, num_feature
 
 evaluate_population <- function(pop, df, target, objectives, 
                                 model = model,
+                                resampling = resampling,
                                 num_features = num_features){
   evaluated_pop <- data.frame()
   
   for(i in 1:length(pop)){
     ind <- pop[[i]]
-    evaluated_ind <- evaluate_ind(ind, df, target, objectives, model = model, num_features)
+    evaluated_ind <- evaluate_ind(ind, df, target, objectives, model = model, 
+                                  resampling = resampling, 
+                                  num_features = num_features)
     rownames(evaluated_ind)<-i
     
     evaluated_pop <- rbind(evaluated_pop, evaluated_ind)
@@ -488,6 +496,7 @@ select_next_generation <- function(sorted_comb_pop, combined_pop, rp, n){
 alg <- function(df, target, obj_list, obj_names, 
                 pareto, n, max_gen,
                 model,
+                resampling,
                 num_features = TRUE,
                 mutation_rate=0.1){  
   
@@ -504,6 +513,7 @@ alg <- function(df, target, obj_list, obj_names,
   epop <- evaluate_population(pop = pop,df = df, target = target, 
                               objectives = obj_list, 
                               model = model,
+                              resampling = resampling,
                               num_features = num_features)
   colnames(epop)<-obj_names
   
