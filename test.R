@@ -34,17 +34,17 @@ df <- df %>% select(-BAD)
 #target <- "GOOD"
 #n <- 50 # number of individs per population
 
-obj_list <- c(accuracy, get_precision, get_spec) #get_spec) #list of objective functions
-obj_names <- c("acc", "prec" , "spec", "nf") #names of objective fns will be used as column names
+obj_list <- c(get_tpr, get_tnr, get_acc) #get_spec) #list of objective functions
+obj_names <- c("tpr", "tnr" , "acc", "nf") #names of objective fns will be used as column names
 
 #specify pareto criteria
-pareto <- high(acc)*high(prec)*high(spec)*low(nf) # high = maximize
+pareto <- high(tpr)*high(tnr)*high(acc)*low(nf) # high = maximize
 
 ans <- alg(df, "GOOD", obj_list, obj_names, pareto, 
-          n = 20, max_gen = 20, 
-          model = xgb_learner,
-          num_features = TRUE,
-          mutation_rate = 0.2)
+           n = 5, max_gen = 3, 
+           model = xgb_learner,
+           num_features = TRUE,
+           mutation_rate = 0.2)
 
 ans
 
@@ -81,5 +81,3 @@ colnames(res) <- colnames(df)[-length(df)]
 
 
 cols
-
-
