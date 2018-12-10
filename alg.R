@@ -131,6 +131,32 @@ select_columns <- function(df, target, ind){
 }
 
 
+#perform_classification <- function(df, target, model, remove_NA=TRUE){
+#  
+#  if(remove_NA==TRUE){
+#    df <- na.omit(df,cols=target)
+#  }
+#  ndf <- normalizeFeatures(df, target = target)
+#  
+#  smp_size = floor(0.75*nrow(df))
+#  
+#  set.seed(123)
+#  train_ind <- sample(seq_len(nrow(df)), size = smp_size )
+#  
+#  train_dat <- df[train_ind,]
+#  test_dat <- df[-train_ind,]
+#  
+#  trainTask <- makeClassifTask(data = train_dat, target = target, positive=1)
+#  testTask <- makeClassifTask(data = test_dat, target = target)
+#  
+#  set.seed(1)
+#  
+#  learner <- model
+#  
+#  mlr_model <- train(learner, task = trainTask)
+#  result <- predict(mlr_model, testTask)
+#}
+
 perform_classification <- function(df, target, model, remove_NA=TRUE){
   
   if(remove_NA==TRUE){
@@ -141,20 +167,17 @@ perform_classification <- function(df, target, model, remove_NA=TRUE){
   smp_size = floor(0.75*nrow(df))
   
   set.seed(123)
-  train_ind <- sample(seq_len(nrow(df)), size = smp_size )
   
-  train_dat <- df[train_ind,]
-  test_dat <- df[-train_ind,]
-  
-  trainTask <- makeClassifTask(data = train_dat, target = target, positive=1)
-  testTask <- makeClassifTask(data = test_dat, target = target)
-  
+  trainTask <- makeClassifTask(data = df, target = target, positive=1)
+
   set.seed(1)
   
   learner <- model
-  
+  rdesc = makeResampleDesc("CV", iters = 5)
+
   mlr_model <- train(learner, task = trainTask)
-  result <- predict(mlr_model, testTask)
+  pred <- resample(xgb_learner, trainTask, rdesc, measures = list(mmce, fpr, fnr, timetrain))
+  res <- pred$pred
 }
 
 
