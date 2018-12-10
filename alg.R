@@ -110,9 +110,9 @@ mutate_pop <- function(pop, mutation_rate=mutation_rate){
 
 
 select_columns <- function(df, target, ind){
- 
-    goods <- df %>% select(target)
- 
+  
+  goods <- df %>% select(target)
+  
   #goods <- as.logical(as.numeric(as.character(goods$target)))
   
   cnames <- colnames(df)
@@ -122,10 +122,10 @@ select_columns <- function(df, target, ind){
   
   df <- df %>% select(selected_columns)
   df <- cbind(df,goods)
-    #df<- df %>% select(-GOOD) 
+  #df<- df %>% select(-GOOD) 
   df <- df %>% createDummyFeatures(target = target, method = 'reference') 
- 
-
+  
+  
   #df <- na.omit(df,cols=target)
   return(df)
 }
@@ -144,13 +144,13 @@ perform_classification <- function(df, target, model, resampling., remove_NA=TRU
   set.seed(123)
   
   trainTask <- makeClassifTask(data = df, target = target, positive=1)
-
+  
   set.seed(1)
   
   learner <- model
   
   rdesc <- resampling
-
+  
   mlr_model <- train(learner, task = trainTask)
   
   pred <- resample(xgb_learner, trainTask, rdesc, show.info = FALSE,
@@ -267,8 +267,8 @@ normalize <- function(f,a,z_min){
   if(a==0){
     f_n <- f/0.000001
   } else {
-  f_n <- f/a
-  return(f_n)
+    f_n <- f/a
+    return(f_n)
   }
 }
 
@@ -418,8 +418,24 @@ execute_selection <- function(pf, k){
 
 #######################################################################################
 
-
-
+maj_vote <- function(pop){
+  cols <- lapply(pop,as.logical)
+  res <- data.frame()
+  for(i in 1:length(cols)){
+    for(j in 1:20){
+      res[i,j] <- pop[[i]][j]
+      #print(colnames(df[,cols[[i]]]))
+    }
+  }
+  votes <- data.frame()
+  names <- colnames(df)[-length(df)]
+  for(i in 1:20){
+    votes[i,1] <- names[i]
+    votes[i,2] <- sum(res[,i])/nrow(res)
+  }
+  colnames(votes) <- c("feature", "vote")
+  return(votes)
+}
 
 #iterator for selecting points from current generation
 
@@ -537,6 +553,9 @@ alg <- function(df, target, obj_list, obj_names,
     
     print(current_generation)
   }
-  result <- pop
+  rownames(epop) <- 1:nrow(epop)
+  votes <- maj_vote(pop) 
+  result <- list(pop,epop,votes)
+  names(result) <- c("fin_pop", "fin_pop_fitness", "maj_vote")
   return(result)
 }
