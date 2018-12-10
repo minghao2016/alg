@@ -84,6 +84,10 @@ mutate_ind <- function(ind, mutation_rate){
       ind[i] <- as.integer(!ind[i])
     }
   }
+  if(sum(ind) == 0){
+    i <- sample(length(ind))
+    ind[i] <- 1
+  }
   return(ind)
 }
 
@@ -119,7 +123,7 @@ select_columns <- function(df, target, ind){
   df <- df %>% select(selected_columns)
   df <- cbind(df,goods)
     #df<- df %>% select(-GOOD) 
-  df <- df %>% createDummyFeatures(target) 
+  df <- df %>% createDummyFeatures(target = target, method = 'reference') 
  
 
   #df <- na.omit(df,cols=target)
@@ -252,8 +256,12 @@ get_intercepts <- function(extreme_points){
 
 #a is already calculated from the f_prime, so no need to substract z_min
 normalize <- function(f,a,z_min){
+  if(a==0){
+    f_n <- f/0.000001
+  } else {
   f_n <- f/a
   return(f_n)
+  }
 }
 
 normalize_objectives <- function(front, intercept, ideal_point){
