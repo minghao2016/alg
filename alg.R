@@ -437,6 +437,25 @@ maj_vote <- function(pop){
   return(votes)
 }
 
+prep_output <- function(pop, epop){
+  rownames(epop) <- 1:nrow(epop)
+  sorted_fin_pop <- non_dom_sort(epop, pareto)
+  pf <- sorted_fin_pop[which(sorted_fin_pop$.level==1),]
+  pf <- pf[,-ncol(pf)]
+  ids <- rownames(pf)
+  
+  top_gen = list()
+  for(i in 1:length(ids)){
+    id <- as.integer(ids[i])
+    top_gen[[i]] <- pop[[id]]
+  }
+  
+  votes <- maj_vote(top_gen) 
+  result <- list(top_gen,pf,votes)
+  names(result) <- c("fin_pop", "fin_pop_fitness", "maj_vote")
+  return(result)
+}
+
 #iterator for selecting points from current generation
 
 
@@ -553,9 +572,8 @@ alg <- function(df, target, obj_list, obj_names,
     
     print(current_generation)
   }
-  rownames(epop) <- 1:nrow(epop)
-  votes <- maj_vote(pop) 
-  result <- list(pop,epop,votes)
-  names(result) <- c("fin_pop", "fin_pop_fitness", "maj_vote")
+  
+  result <- prep_output(pop, epop)
+
   return(result)
 }
