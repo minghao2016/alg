@@ -26,3 +26,5 @@ xgb_learner <- makeLearner(
     early_stopping_rounds = 10
   )
 )
+
+resampling <- makeResampleDesc("CV", iters = 5)
