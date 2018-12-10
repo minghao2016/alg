@@ -1,6 +1,6 @@
 if (require(pacman) == F) install.packages("pacman")
 library("pacman")
-p_load("caret", "rPref", "plotly", "dplyr", "xgboost", "mlr", "dummies")
+p_load("rPref", "plotly", "dplyr", "xgboost", "mlr" )
 
 cd <- dirname(rstudioapi::getActiveDocumentContext()$path)
 
@@ -104,9 +104,11 @@ mutate_pop <- function(pop, mutation_rate=mutation_rate){
 #######################################################################################
 
 
+
 select_columns <- function(df, target, ind){
-  
-  goods <- df %>% select(target)
+ 
+    goods <- df %>% select(target)
+ 
   #goods <- as.logical(as.numeric(as.character(goods$target)))
   
   cnames <- colnames(df)
@@ -115,10 +117,11 @@ select_columns <- function(df, target, ind){
   selected_columns <- cnames[as.logical(ind)]
   
   df <- df %>% select(selected_columns)
-  colnames(df)
-  #df<- df %>% select(-GOOD) 
-  df <- df %>% dummy.data.frame() 
   df <- cbind(df,goods)
+    #df<- df %>% select(-GOOD) 
+  df <- df %>% createDummyFeatures(target) 
+ 
+
   #df <- na.omit(df,cols=target)
   return(df)
 }
@@ -145,7 +148,7 @@ perform_classification <- function(df, target, model, remove_NA=TRUE){
   set.seed(1)
   
   learner <- model
-
+  
   mlr_model <- train(learner, task = trainTask)
   result <- predict(mlr_model, testTask)
 }
@@ -414,9 +417,9 @@ select_next_generation <- function(sorted_comb_pop, combined_pop, rp, n){
     
     pf <- sorted_comb_pop[which(sorted_comb_pop$.level==lvl),]
     pf <- pf[,-ncol(pf)]
-
+    
     len <- length(next_pop)
-
+    
     if((nrow(pf)+len) <= n){
       
       for(i in 1:nrow(pf)){
@@ -519,5 +522,3 @@ alg <- function(df, target, obj_list, obj_names,
   result <- pop
   return(result)
 }
-
-
