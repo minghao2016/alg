@@ -1,19 +1,20 @@
-accuracy <- function(pred_result){
-  ans <- sum(pred_result$data$truth == pred_result$data$response) / nrow(pred_result$data)
-  return(ans)
+get_acc <- function(res){
+  cm <- calculateROCMeasures(res)
+  acc <- as.numeric(cm$measures$acc)
+  return(acc)
 }
 
 
-get_precision <- function(res){
-  cm <- confusionMatrix(res$data$truth, res$data$response)
-  precision <- as.numeric(cm$byClass["Precision"])
-  return(precision)
+get_tpr <- function(res){
+  cm <- calculateROCMeasures(res)
+  tpr <- as.numeric(cm$measures$tpr)
+  return(tpr)
 }
 
-get_spec <- function(res){
-  cm <- confusionMatrix(res$data$truth, res$data$response)
-  spec <- as.numeric(cm$byClass["Specificity"])
-  return(spec)
+get_tnr <- function(res){
+  cm <- calculateROCMeasures(res)
+  tnr <- as.numeric(cm$measures$tnr)
+  return(tnr)
 }
 
 xgb_learner <- makeLearner(
