@@ -5,8 +5,8 @@ cd <- dirname(rstudioapi::getActiveDocumentContext()$path)
 setwd(dirname(cd))
 
 # setting inner folders
-code.folder <- "R/code"
-data.folder <- "R/data"
+code.folder <- "code"
+data.folder <- "data"
 file.folder <- "R/files"
 resu.folder <- "R/output"
 
@@ -28,7 +28,7 @@ df <- df %>%
                        "BAD" = "0", 
                        "GOOD" = "1"))
 df <- df %>% select(-BAD)
-
+ 
 
 #specify the name of the target column in the data
 #target <- "GOOD"
@@ -40,14 +40,19 @@ obj_names <- c("tpr", "tnr" , "acc", "nf") #names of objective fns will be used 
 #specify pareto criteria
 pareto <- high(tpr)*high(tnr)*high(acc)*low(nf) # high = maximize
 
+s<-timestamp()
+
 ans <- alg(df, "GOOD", obj_list, obj_names, pareto, 
            n = 5, max_gen = 3, 
            model = xgb_learner,
+           resampling = resampling,
            num_features = TRUE,
            mutation_rate = 0.2)
 
 ans
 
+e <- time.timestamp()
+e-s
 
 
 #if you want to visualize the result in terms of objectives
@@ -55,9 +60,9 @@ ans
 pop <- ans
 epop <- evaluate_population(pop = pop,df = df, target = "GOOD", model = xgb_learner,
                             objectives = obj_list, num_features = TRUE)
-colnames(epop)<-c("acc", "prec", "spec", "nf")
+colnames(epop)<-c("tpr", "tnr", "acc", "nf")
 spop <- non_dom_sort(epop, pareto)
-plt <- plot_ly(spop, x=~acc, y=~prec, z=~nf, 
+plt <- plot_ly(spop, x=~tpr, y=~tnr, z=~nf, 
                color= ~.level, type="scatter3d", mode = 'markers')
 plt
 
@@ -73,11 +78,12 @@ for(i in 1:length(cols)){
     #print(colnames(df[,cols[[i]]]))
   }
 }
+report <- data.frame()
 for(i in 1:20){
-  res[11,i] <- sum(res[,i])/10
+  report[1,i] <- sum(res[,i])/nrow(res)
 }
 
-colnames(res) <- colnames(df)[-length(df)]
+colnames(report) <- colnames(df)[-length(df)]
 
 
 cols
