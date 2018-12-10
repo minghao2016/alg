@@ -1,0 +1,8 @@
+AUC
+https://pat-s.github.io/mlr/articles/tutorial/devel/roc_analysis.html
+
+XGBoost
+https://xgboost.readthedocs.io/en/latest//parameter.html
+
+MLR tune
+https://mlr.mlr-org.com/articles/tutorial/tune.html
