@@ -13,6 +13,7 @@ resu.folder <- "R/output"
 # loading functions
 source(file.path(code.folder, "nsgaiii.R"))
 source(file.path(code.folder, "obj_funs.R"))
+source(file.path(code.folder, "model.R"))
 
 
 
@@ -34,16 +35,16 @@ df <- df %>% select(-BAD)
 #target <- "GOOD"
 #n <- 50 # number of individs per population
 
-obj_list <- c(get_tpr, get_tnr, get_acc) #get_spec) #list of objective functions
-obj_names <- c("tpr", "tnr" , "acc", "nf") #names of objective fns will be used as column names
+obj_list <- c(f_auc, emp) #get_spec) #list of objective functions
+obj_names <- c("auc", "emp" , "nf") #names of objective fns will be used as column names
 
 #specify pareto criteria
-pareto <- high(tpr)*high(tnr)*high(acc)*low(nf) # high = maximize
+pareto <- high(auc)*high(emp)*low(nf) # high = maximize
 
 s<-timestamp()
 
 ans <- alg(df, "GOOD", obj_list, obj_names, pareto, 
-           n = 5, max_gen = 3, 
+           n = 50, max_gen = 50, 
            model = xgb_learner,
            resampling = resampling,
            num_features = TRUE,
