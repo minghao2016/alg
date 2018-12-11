@@ -512,6 +512,8 @@ alg <- function(df, target, obj_list, obj_names,
                 num_features = TRUE,
                 mutation_rate=0.1){  
   
+  start_time <- Sys.time()
+  print("Initializing algorithm ...")
   #m = number of objective functions
   m <- length(obj_list)+1
   
@@ -529,13 +531,14 @@ alg <- function(df, target, obj_list, obj_names,
                               num_features = num_features)
   colnames(epop)<-obj_names
   
-  print(epop)
-  
   current_generation <- 0
   
   pop <- ipop
   
+  print("Performing iterations: ")
+  
   while(current_generation < max_gen){
+    
     
     # assigning new id's to previously selected pouints
     rownames(epop) <- 1:nrow(epop)
@@ -567,15 +570,20 @@ alg <- function(df, target, obj_list, obj_names,
     pop <- res[[1]]
     epop <- res[[2]]
     
-    print("Selected generation")
-    print(epop)
-
+    
+    ideal_point <- compute_ideal_point(sorted_comb_pop)[-length(sorted_comb_pop)]
     current_generation <- current_generation + 1
     
-    print(current_generation)
+    print(paste0("- Iteration ", current_generation, "/", max_gen))
+    #print(paste("  Ideal point: ",ideal_point, collapse = " : "))
+
   }
   
   result <- prep_output(pop, epop)
+  
+  end_time <- Sys.time()
+  print(paste("Time: ",end_time - start_time))
+  
 
   return(result)
 }
