@@ -1,6 +1,6 @@
 if (require(pacman) == F) install.packages("pacman")
 library("pacman")
-p_load("rPref", "plotly", "dplyr", "xgboost", "mlr" ,'EMP' )
+p_load("rPref", "plotly", "dplyr", "xgboost", "mlr" ,'EMP', 'parallelMap' )
 
 cd <- dirname(rstudioapi::getActiveDocumentContext()$path)
 
@@ -151,9 +151,7 @@ perform_classification <- function(df, target, model, resampling., remove_NA=TRU
   
   rdesc <- resampling
   
-  mlr_model <- train(learner, task = trainTask)
-  
-  pred <- resample(xgb_learner, trainTask, rdesc, show.info = FALSE,
+  pred <- resample(learner, trainTask, rdesc, show.info = FALSE,
                    measures = list(mmce, fpr, fnr, timetrain))
   res <- pred$pred
   return(res)
@@ -576,7 +574,7 @@ alg <- function(df, target, obj_list, obj_names,
     
     print(paste0("- Iteration ", current_generation, "/", max_gen))
     #print(paste("  Ideal point: ",ideal_point, collapse = " : "))
-
+    
   }
   
   result <- prep_output(pop, epop)
@@ -584,6 +582,6 @@ alg <- function(df, target, obj_list, obj_names,
   end_time <- Sys.time()
   print(paste("Time: ",end_time - start_time))
   
-
+  
   return(result)
 }
