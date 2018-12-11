@@ -141,7 +141,7 @@ perform_classification <- function(df, target, model, resampling., remove_NA=TRU
   
   smp_size = floor(0.75*nrow(df))
   
-  set.seed(123)
+  #set.seed(123)
   
   trainTask <- makeClassifTask(data = df, target = target, positive=1)
   
@@ -424,7 +424,6 @@ maj_vote <- function(pop){
   for(i in 1:length(cols)){
     for(j in 1:20){
       res[i,j] <- pop[[i]][j]
-      #print(colnames(df[,cols[[i]]]))
     }
   }
   votes <- data.frame()
@@ -437,18 +436,16 @@ maj_vote <- function(pop){
   return(votes)
 }
 
-prep_output <- function(pop, epop){
-  rownames(epop) <- 1:nrow(epop)
-  sorted_fin_pop <- non_dom_sort(epop, pareto)
+prep_output <- function(pop., epop.){
+  rownames(epop.) <- 1:nrow(epop.)
+  sorted_fin_pop <- non_dom_sort(epop., pareto)
   pf <- sorted_fin_pop[which(sorted_fin_pop$.level==1),]
   pf <- pf[,-ncol(pf)]
   ids <- rownames(pf)
+  ids <- sapply(ids, as.integer)
   
-  top_gen = list()
-  for(i in 1:length(ids)){
-    id <- as.integer(ids[i])
-    top_gen[[i]] <- pop[[id]]
-  }
+  top_gen = pop.[ids]
+  
   
   votes <- maj_vote(top_gen) 
   result <- list(top_gen,pf,votes)
@@ -493,9 +490,12 @@ select_next_generation <- function(sorted_comb_pop, combined_pop, rp, n){
   eval_next_gen = data.frame()
   for(i in 1:length(next_pop)){
     id <- as.integer(next_pop[i])
-    next_gen[[i]] <- combined_pop[[id]]
     eval_next_gen <- rbind(eval_next_gen, sorted_comb_pop[id,-ncol(sorted_comb_pop)])
   }
+  ids <- rownames(eval_next_gen)
+  ids <- sapply(ids, as.integer)
+  next_gen <- combined_pop[ids]
+  
   ans <- list(next_gen, eval_next_gen)
   return(ans)
 }
@@ -519,10 +519,10 @@ alg <- function(df, target, obj_list, obj_names,
   rp <- ref_points(m)
   
   #generating initial population
-  pop <- generate_init_pop(df, n)    
+  ipop <- generate_init_pop(df, n)    
   
   #getting values for objective functions
-  epop <- evaluate_population(pop = pop,df = df, target = target, 
+  epop <- evaluate_population(pop = ipop,df = df, target = target, 
                               objectives = obj_list, 
                               model = model,
                               resampling = resampling,
@@ -532,6 +532,8 @@ alg <- function(df, target, obj_list, obj_names,
   print(epop)
   
   current_generation <- 0
+  
+  pop <- ipop
   
   while(current_generation < max_gen){
     
@@ -567,7 +569,7 @@ alg <- function(df, target, obj_list, obj_names,
     
     print("Selected generation")
     print(epop)
-    
+
     current_generation <- current_generation + 1
     
     print(current_generation)
