@@ -1,6 +1,6 @@
 if (require(pacman) == F) install.packages("pacman")
 library("pacman")
-p_load("rPref", "plotly", "dplyr", "xgboost", "mlr" ,'EMP', 'parallelMap' )
+p_load("rPref", "plotly", "xgboost", "mlr" ,'EMP', 'parallelMap' )
 
 cd <- dirname(rstudioapi::getActiveDocumentContext()$path)
 
@@ -111,25 +111,20 @@ mutate_pop <- function(pop, mutation_rate=mutation_rate){
 
 select_columns <- function(df, target, ind){
   
-  goods <- df %>% select(target)
-  
-  #goods <- as.logical(as.numeric(as.character(goods$target)))
+  goods <- data.frame(df[,c(target)])
+  colnames(goods) <- target
   
   cnames <- colnames(df)
   cnames <- cnames[-which(cnames==target)]
   
   selected_columns <- cnames[as.logical(ind)]
   
-  df <- df %>% select(selected_columns)
+  df <- df[,selected_columns]
   df <- cbind(df,goods)
-  #df<- df %>% select(-GOOD) 
-  df <- df %>% createDummyFeatures(target = target, method = 'reference') 
+  df <- createDummyFeatures(df, target = target, method = 'reference') 
   
-  
-  #df <- na.omit(df,cols=target)
   return(df)
 }
-
 
 
 perform_classification <- function(df, target, model, resampling., remove_NA=TRUE){
