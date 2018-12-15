@@ -289,6 +289,13 @@ ref_points <- function(n_objectives){
   m <- n_objectives
   p <- m+1
   
+  if( m==2){
+    a <- seq(0,0.5,0.05)
+    b <- seq(0.5,0,-0.05)
+    refs <- cbind(a,b)
+    return(refs)
+  }
+  
   #N = number of points
   a <- m+p-1
   n <- factorial(a)/(factorial(p)*factorial(a-p))
@@ -508,11 +515,13 @@ alg <- function(df, target, obj_list, obj_names,
   start_time <- Sys.time()
   print("Initializing algorithm ...")
   #m = number of objective functions
-  m <- length(obj_list)+1
+  m <- length(obj_list)+num_features
   
+  print("- Generating reference points...")
   #generate reference points
   rp <- ref_points(m)
   
+  print("- Generating initial population...")
   #generating initial population
   ipop <- generate_init_pop(df, n)    
   
