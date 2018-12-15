@@ -341,13 +341,14 @@ ref_points <- function(n_objectives){
 
 find_ref_point <- function(point, rp){
   res <- matrix(ncol=ncol(point)+1, nrow=nrow(rp))
+
   for(i in 1:nrow(rp)){
     d <- dist(rbind(point,rp[i,]))
     res[i,1:(ncol(res)-1)] <- rp[i,]
     res[i,ncol(res)] <- d
   }
-  ref <- rp[which.min(res[,4]),]
-  ans <- which.min(res[,4])
+  ref <- rp[which.min(res[,ncol(res)]),]
+  ans <- which.min(res[,ncol(res)])
   
   return(ans)
 }
