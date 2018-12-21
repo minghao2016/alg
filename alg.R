@@ -179,6 +179,13 @@ evaluate_ind <- function(ind, df, target, objectives, model = model,
     obj_vals[1,n]<- sum(ind)
   }
   
+  if(feature_cost){
+    cost <- sum(feature_cost[as.logical(ind)])
+    n <- length(obj_vals)+1
+    obj_vals[1,n]<- cost    
+  }
+  
+  
   return(obj_vals)
 }
 
