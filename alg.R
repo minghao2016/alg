@@ -155,7 +155,8 @@ perform_classification <- function(df, target, model, resampling., remove_NA=TRU
 
 evaluate_ind <- function(ind, df, target, objectives, model = model, 
                          resampling. = resampling,
-                         num_features = num_features){
+                         num_features = num_features,
+                         feature_cost = feature_cost){
   
   dat <- select_columns(df, target, ind)
   res <- perform_classification(dat, target, model = model, 
@@ -179,7 +180,7 @@ evaluate_ind <- function(ind, df, target, objectives, model = model,
     obj_vals[1,n]<- sum(ind)
   }
   
-  if(feature_cost){
+  if(any(feature_cost)){
     cost <- sum(feature_cost[as.logical(ind)])
     n <- length(obj_vals)+1
     obj_vals[1,n]<- cost    
@@ -193,14 +194,16 @@ evaluate_ind <- function(ind, df, target, objectives, model = model,
 evaluate_population <- function(pop, df, target, objectives, 
                                 model = model,
                                 resampling = resampling,
-                                num_features = num_features){
+                                num_features = num_features,
+                                feature_cost = feature_cost){
   evaluated_pop <- data.frame()
   
   for(i in 1:length(pop)){
     ind <- pop[[i]]
     evaluated_ind <- evaluate_ind(ind, df, target, objectives, model = model, 
                                   resampling = resampling, 
-                                  num_features = num_features)
+                                  num_features = num_features,
+                                  feature_cost = feature_cost)
     rownames(evaluated_ind)<-i
     
     evaluated_pop <- rbind(evaluated_pop, evaluated_ind)
@@ -518,7 +521,8 @@ alg <- function(df, target, obj_list, obj_names,
                 model,
                 resampling,
                 num_features = TRUE,
-                mutation_rate=0.1){  
+                mutation_rate=0.1,
+                feature_cost = FALSE){  
   
   start_time <- Sys.time()
   print("Initializing algorithm ...")
@@ -538,7 +542,8 @@ alg <- function(df, target, obj_list, obj_names,
                               objectives = obj_list, 
                               model = model,
                               resampling = resampling,
-                              num_features = num_features)
+                              num_features = num_features,
+                              feature_cost = feature_cost)
   colnames(epop)<-obj_names
   
   current_generation <- 0
@@ -563,7 +568,8 @@ alg <- function(df, target, obj_list, obj_names,
     echildren <- evaluate_population(pop = mchildren,df = df, target = target, 
                                      objectives = obj_list, 
                                      model = model,
-                                     num_features=num_features)
+                                     num_features=num_features,
+                                     feature_cost = feature_cost)
     colnames(echildren) <- obj_names
     rownames(echildren) <- (length(pop)+1):(length(pop)+length(children))
     
