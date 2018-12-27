@@ -33,13 +33,6 @@ non_dom_sort <- function(pop, pareto_criteria){
   return(sorted_pop)
 }
 
-#3D PLOT PARETO FRONTS
-plot_pareto_3d <- function(sorted_pop, x, y, z){ 
-  plt <- plot_ly(sorted_pop, x=x, y=y, z=z, 
-                 type="scatter3d", mode="markers", color=~.level)
-  return(plt)
-}
-
 
 #######################################################################################
 
@@ -587,7 +580,12 @@ alg <- function(df, target, obj_list, obj_names,
     evaluated_pop <- res[[2]]
     
     
-    ideal_point <- compute_ideal_point(sorted_evaluated_comb_pop)[-length(sorted_evaluated_comb_pop)]
+    
+    plt <- plot_ly(sorted_evaluated_comb_pop, x=~auc, y=~emp, z=~nf,
+                   color = ~.level,
+                   type="scatter3d", mode = 'markers')
+    print(plt)
+    #ideal_point <- compute_ideal_point(sorted_evaluated_comb_pop)[-length(sorted_evaluated_comb_pop)]
     current_generation <- current_generation + 1
     
     print(paste0("- Iteration ", current_generation, "/", max_gen))
