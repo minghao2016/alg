@@ -6,15 +6,17 @@ cd <- dirname(rstudioapi::getActiveDocumentContext()$path)
 setwd(dirname(cd))
 
 # setting inner folders
-code.folder <- "R/code"
-data.folder <- "R/data"
-file.folder <- "R/files"
-resu.folder <- "R/output"
+code.folder <- "alg/source"
+test.folder <- "alg/test"
+data.folder <- "alg/data"
+
+#file.folder <- "R/files"
+#resu.folder <- "R/output"
 
 # loading functions
-source(file.path(code.folder, "nsgaiii.R"))
-source(file.path(code.folder, "obj_funs.R"))
-source(file.path(code.folder, "model.R"))
+source(file.path(code.folder, "alg_builder.R"))
+source(file.path(test.folder, "obj_funs.R"))
+source(file.path(test.folder, "model.R"))
 
 #getting input ready
 
