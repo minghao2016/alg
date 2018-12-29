@@ -11,7 +11,8 @@ p_load("rPref", "plotly", "xgboost", "mlr" ,'EMP', 'parallelMap' )
 cd <- dirname(rstudioapi::getActiveDocumentContext()$path)
 setwd(dirname(cd))
 
-code.main <- "alg/source"
+
+code.main <- "alg/source/main"
 code.selection <- "alg/source/selection"
 
 
