@@ -78,11 +78,20 @@ alg <- function(df, target, obj_list, obj_names,
     pop <- res[[1]]
     evaluated_pop <- res[[2]]
     
-    
-    
-    plt <- plot_ly(sorted_evaluated_comb_pop, x=~mshare, y=~emp, z=~nf,
-                   color = ~.level,
+    pdat <- sorted_evaluated_comb_pop[which(sorted_evaluated_comb_pop$.level==1),]
+    idp <- compute_ideal_point(pdat)
+    pltdat <- translate_objectives(pdat, idp)
+                      
+    p1 <- plot_ly(pltdat, 
+                  x=~mshare, y=~emp, z=~nf,
+                   #color = ~.level,
                    type="scatter3d", mode = 'markers')
+    rpnts <- data.frame(rp)
+    p2 <- plot_ly(rpnts, x = rpnts[,1], y = rpnts[,2], z = rpnts[,3], 
+                  type="scatter3d", mode = 'markers')
+
+    plt <- subplot(p1,p2)
+    
     print(plt)
     #ideal_point <- compute_ideal_point(sorted_evaluated_comb_pop)[-length(sorted_evaluated_comb_pop)]
     current_generation <- current_generation + 1

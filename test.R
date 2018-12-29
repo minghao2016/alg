@@ -47,7 +47,7 @@ pareto <- low(mshare)*low(emp)*low(nf)#*low(fcost) # high = maximize
 start_time <- Sys.time()
 
 ans <- alg(df, "GOOD", obj_list, obj_names, pareto, 
-           n = 50, max_gen = 50, 
+           n = 50, max_gen = 10, 
            model = xgb_learner,
            resampling = resampling,
            num_features = TRUE,

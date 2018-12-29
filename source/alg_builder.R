@@ -27,6 +27,7 @@ source(file.path(code.selection, "niching.R"))
 source(file.path(code.selection, "next_generation_selection.R"))
 
 source(file.path(code.main, "output_preparation.R"))
+source(file.path(code.main, "visualisation.R"))
 source(file.path(code.main, "algorithm_wrap.R"))
 
 
