@@ -80,7 +80,7 @@ alg <- function(df, target, obj_list, obj_names,
     
     
     
-    plt <- plot_ly(sorted_evaluated_comb_pop, x=~auc, y=~emp, z=~nf,
+    plt <- plot_ly(sorted_evaluated_comb_pop, x=~mshare, y=~emp, z=~nf,
                    color = ~.level,
                    type="scatter3d", mode = 'markers')
     print(plt)

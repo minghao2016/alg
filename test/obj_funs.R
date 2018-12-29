@@ -21,13 +21,21 @@ get_tnr <- function(res){
 
 f_auc <- function(pred){
   auc <- mlr::performance(pred, auc)
-  return(as.numeric(auc))
+  return(as.numeric(1-auc))
 }
 
 emp <- function(pred){
   m <- empCreditScoring(pred$data$prob.1, pred$data$truth)
   emp <- m$EMPC
-  return(as.numeric(emp))
+  return(as.numeric(1-emp))
+}
+
+mshare <- function(pred){
+  prediction <- pred$data$response
+  share <- sum(as.integer(as.character(prediction)))/length(prediction)
+  #print(share)
+  inv_share <- 1-share
+  return(as.numeric(inv_share))
 }
 
 

@@ -38,20 +38,20 @@ names(costs) <- colnames(df[1:(ncol(df)-1)])
 #target <- "GOOD"
 #n <- 50 # number of individs per population
 
-obj_list <- c(f_auc, emp) #get_spec) #list of objective functions
-obj_names <- c("auc", "emp", "nf", "fcost") #, "nf") #names of objective fns will be used as column names
+obj_list <- c(mshare, emp) #get_spec) #list of objective functions
+obj_names <- c("mshare", "emp", "nf")#names of objective fns will be used as column names
 
 #specify pareto criteria
-pareto <- low(auc)*low(emp)*low(nf)*low(fcost) # high = maximize
+pareto <- low(mshare)*low(emp)*low(nf)#*low(fcost) # high = maximize
 
 start_time <- Sys.time()
 
 ans <- alg(df, "GOOD", obj_list, obj_names, pareto, 
-           n = 5, max_gen = 5, 
+           n = 50, max_gen = 50, 
            model = xgb_learner,
            resampling = resampling,
            num_features = TRUE,
-           feature_cost = costs,
+           #feature_cost = costs,
            mutation_rate = 0.01)
 
 end_time <- Sys.time()
