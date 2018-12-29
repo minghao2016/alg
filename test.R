@@ -46,8 +46,8 @@ pareto <- low(mshare)*low(emp)*low(nf)#*low(fcost) # high = maximize
 
 start_time <- Sys.time()
 
-ans <- alg(df, "GOOD", obj_list, obj_names, pareto, 
-           n = 50, max_gen = 10, 
+ans1 <- alg(df, "GOOD", obj_list, obj_names, pareto, 
+           n = 5, max_gen = 1, 
            model = xgb_learner,
            resampling = resampling,
            num_features = TRUE,
@@ -56,7 +56,7 @@ ans <- alg(df, "GOOD", obj_list, obj_names, pareto,
 
 end_time <- Sys.time()
 end_time - start_time
-ans
+ans1
 
 #if you want to visualize the result in terms of objectives
 

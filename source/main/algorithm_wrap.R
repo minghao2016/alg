@@ -14,6 +14,7 @@ alg <- function(df, target, obj_list, obj_names,
                 resampling,
                 num_features = TRUE,
                 mutation_rate=0.1,
+                threshold = 0.5,
                 feature_cost = FALSE){  
   
   start_time <- Sys.time()
@@ -78,21 +79,10 @@ alg <- function(df, target, obj_list, obj_names,
     pop <- res[[1]]
     evaluated_pop <- res[[2]]
     
-    pdat <- sorted_evaluated_comb_pop[which(sorted_evaluated_comb_pop$.level==1),]
-    idp <- compute_ideal_point(pdat)
-    pltdat <- translate_objectives(pdat, idp)
-                      
-    p1 <- plot_ly(pltdat, 
-                  x=~mshare, y=~emp, z=~nf,
-                   #color = ~.level,
-                   type="scatter3d", mode = 'markers')
-    rpnts <- data.frame(rp)
-    p2 <- plot_ly(rpnts, x = rpnts[,1], y = rpnts[,2], z = rpnts[,3], 
-                  type="scatter3d", mode = 'markers')
 
-    plt <- subplot(p1,p2)
-    
+    plt <- view_pareto(sorted_evaluated_comb_pop, rp)
     print(plt)
+    
     #ideal_point <- compute_ideal_point(sorted_evaluated_comb_pop)[-length(sorted_evaluated_comb_pop)]
     current_generation <- current_generation + 1
     
@@ -101,7 +91,13 @@ alg <- function(df, target, obj_list, obj_names,
     
   }
   
-  result <- prep_output(pop, evaluated_pop)
+  result <- prep_output(pop. = pop, evaluated_pop. = evaluated_pop, 
+                        df = df, threshold = threshold,
+                        target = target, objectives = obj_list, 
+                        model = model, 
+                        resampling. = resampling,
+                        num_features = num_features,
+                        feature_cost = feature_cost)
   
   end_time <- Sys.time()
   print(paste("Time: ",end_time - start_time))
