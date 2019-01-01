@@ -8,4 +8,6 @@ sum(as.integer(as.character(pred$data$response)))
 
 mshare(a)
 
-     
+ans$fin_pop_fitness[which()]
+
+normalizeFeatures(ans$fin_pop_fitness, cols = "nf", method = "range", range= c(0, 1))

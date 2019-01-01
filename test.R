@@ -60,31 +60,9 @@ ans1
 
 #if you want to visualize the result in terms of objectives
 
-pop <- ans$fin_pop
-epop <- evaluate_population(pop = pop,df = df, target = "GOOD", model = xgb_learner,
-                            objectives = obj_list, num_features = TRUE)
 colnames(epop)<-c("auc", "emp", "nf")
 spop <- non_dom_sort(epop, pareto)
 plt <- plot_ly(spop, x=~auc, y=~emp, z=~nf, 
                color= ~.level, type="scatter3d", mode = 'markers')
 plt
 
-#view selected column names
-
-cols <- lapply(ans,as.logical)
-res <- data.frame()
-for(i in 1:length(cols)){
-  print(i)
-  for(j in 1:20){
-    print(j)
-    res[i,j] <- ans[[i]][j]
-    #print(colnames(df[,cols[[i]]]))
-  }
-}
-report <- data.frame()
-for(i in 1:20){
-  report[1,i] <- sum(res[,i])/nrow(res)
-}
-
-colnames(report) <- colnames(df)[-length(df)]
-report
