@@ -20,7 +20,7 @@ alg <- function(df, target, obj_list, obj_names,
   start_time <- Sys.time()
   print("Initializing algorithm ...")
   #m = number of objective functions
-  m <- length(obj_list)+num_features
+  m <- length(obj_names)
   
   print("- Generating reference points...")
   #generate reference points
@@ -86,7 +86,13 @@ alg <- function(df, target, obj_list, obj_names,
     #ideal_point <- compute_ideal_point(sorted_evaluated_comb_pop)[-length(sorted_evaluated_comb_pop)]
     current_generation <- current_generation + 1
     
-    print(paste0("- Iteration ", current_generation, "/", max_gen))
+    
+    #hypervolume
+    invisible(capture.output(hpvlm <- hypervolume(sorted_evaluated_comb_pop[which(sorted_evaluated_comb_pop$.level==1),1:m])))
+    
+    print(paste0("- Iteration ", current_generation, "/", max_gen, 
+                 "   |   Hypervolume: ", hpvlm@Volume))
+    
     #print(paste("  Ideal point: ",ideal_point, collapse = " : "))
     
   }

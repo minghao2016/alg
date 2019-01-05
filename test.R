@@ -25,11 +25,14 @@ f <- 'german.rds'
 df <- readRDS(file.path(data.folder, f))
 
 
-df <- df %>% 
-  mutate(GOOD = recode(df$BAD, 
-                       "BAD" = "0", 
-                       "GOOD" = "1"))
-df <- df %>% select(-BAD)
+#df <- df %>% 
+#  mutate(GOOD = recode(df$BAD, 
+#                       "BAD" = "0", 
+#                       "GOOD" = "1"))
+#df <- df %>% select(-BAD)
+levels(df$BAD)[levels(df$BAD) == "GOOD"] <- "0"
+levels(df$BAD)[levels(df$BAD) == "BAD"] <- "1"
+
 
 
 costs <- runif(n = 20, min = 1, max = 20)
@@ -45,9 +48,8 @@ obj_names <- c("mshare", "emp", "nf")#names of objective fns will be used as col
 pareto <- low(mshare)*low(emp)*low(nf)#*low(fcost) # high = maximize
 
 start_time <- Sys.time()
-
-ans1 <- alg(df, "GOOD", obj_list, obj_names, pareto, 
-           n = 5, max_gen = 1, 
+ans <- alg(df, "BAD", obj_list, obj_names, pareto, 
+           n = 50, max_gen = 50, 
            model = xgb_learner,
            resampling = resampling,
            num_features = TRUE,
@@ -56,7 +58,7 @@ ans1 <- alg(df, "GOOD", obj_list, obj_names, pareto,
 
 end_time <- Sys.time()
 end_time - start_time
-ans1
+ans
 
 #if you want to visualize the result in terms of objectives
 

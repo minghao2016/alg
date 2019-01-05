@@ -6,7 +6,7 @@
 
 if (require(pacman) == F) install.packages("pacman")
 library("pacman")
-p_load("rPref", "plotly", "xgboost", "mlr" ,'EMP', 'parallelMap' )
+p_load('hypervolume', "rPref", "plotly", "xgboost", "mlr" ,'EMP', 'parallelMap')
 
 cd <- dirname(rstudioapi::getActiveDocumentContext()$path)
 setwd(dirname(cd))

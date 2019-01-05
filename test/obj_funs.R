@@ -31,9 +31,13 @@ emp <- function(pred){
 }
 
 mshare <- function(pred){
-  prediction <- pred$data$response
-  share <- sum(as.integer(as.character(prediction)))/length(prediction)
-  #print(share)
+  m <- empCreditScoring(pred$data$prob.1, pred$data$truth)
+  emp <- m$EMPC
+  cutoff <- m$EMPCfrac
+  
+  share <- 1 - cutoff
+  print(paste("EMPCS: ", emp, "cutoff: ", cutoff, "share: ", share))
+  
   inv_share <- 1-share
   return(as.numeric(inv_share))
 }
