@@ -1,8 +1,9 @@
 
 #iterator for selecting points from current generation
-select_next_generation <- function(sorted_evaluated_comb_pop, combined_pop_individuals, rp, n){
+select_next_generation <- function(sorted_evaluated_comb_pop, 
+                                   combined_pop_individuals, rp, n){
   next_pop = c()
-  #n <- 50
+  
   lvl <- 1
   while(length(next_pop) != n){
     
@@ -32,7 +33,7 @@ select_next_generation <- function(sorted_evaluated_comb_pop, combined_pop_indiv
   next_gen = list()
   eval_next_gen = data.frame()
   for(i in 1:length(next_pop)){
-    id <- as.integer(next_pop[i])
+    id <- next_pop[i]
     eval_next_gen <- rbind(eval_next_gen, sorted_evaluated_comb_pop[id,-ncol(sorted_evaluated_comb_pop)])
   }
   ids <- rownames(eval_next_gen)

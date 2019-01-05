@@ -45,6 +45,8 @@ alg <- function(df, target, obj_list, obj_names,
   
   print("Performing iterations: ")
   
+  all_gens <- list()
+  
   while(current_generation < max_gen){
     
     
@@ -78,6 +80,9 @@ alg <- function(df, target, obj_list, obj_names,
     res <- select_next_generation(sorted_evaluated_comb_pop, combined_pop_individuals, rp, n)
     pop <- res[[1]]
     evaluated_pop <- res[[2]]
+
+print(sorted_evaluated_comb_pop[sorted_evaluated_comb_pop$.level ==1,])    
+print(non_dom_sort(evaluated_pop, pareto))
     
 
     plt <- view_pareto(sorted_evaluated_comb_pop, rp)
@@ -86,6 +91,9 @@ alg <- function(df, target, obj_list, obj_names,
     #ideal_point <- compute_ideal_point(sorted_evaluated_comb_pop)[-length(sorted_evaluated_comb_pop)]
     current_generation <- current_generation + 1
     
+    
+    test_pop <- list(evaluated_pop, pop)
+    all_gens[current_generation] <- test_pop
     
     #hypervolume
     invisible(capture.output(hpvlm <- hypervolume(sorted_evaluated_comb_pop[which(sorted_evaluated_comb_pop$.level==1),1:m])))
@@ -108,6 +116,6 @@ alg <- function(df, target, obj_list, obj_names,
   end_time <- Sys.time()
   print(paste("Time: ",end_time - start_time))
   
-  
-  return(result)
+  abc <- list(result, all_gens)
+  return(abc)
 }

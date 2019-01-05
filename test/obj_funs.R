@@ -43,7 +43,6 @@ mshare <- function(pred){
 }
 
 
-
 #d = generateThreshVsPerfData(pred, measures = list(fpr, tpr, mmce))
 #plotROCCurves(d)
 #mlr::performance(pred$pred, auc)

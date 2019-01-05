@@ -1,5 +1,7 @@
 rm(list = ls())
 
+library(digest)
+
 library(dplyr)
 
 cd <- dirname(rstudioapi::getActiveDocumentContext()$path)
@@ -47,6 +49,9 @@ obj_names <- c("mshare", "emp", "nf")#names of objective fns will be used as col
 #specify pareto criteria
 pareto <- low(mshare)*low(emp)*low(nf)#*low(fcost) # high = maximize
 
+parallelStartSocket(2, show.info = FALSE)
+
+
 start_time <- Sys.time()
 ans <- alg(df, "BAD", obj_list, obj_names, pareto, 
            n = 50, max_gen = 50, 
@@ -58,13 +63,35 @@ ans <- alg(df, "BAD", obj_list, obj_names, pareto,
 
 end_time <- Sys.time()
 end_time - start_time
-ans
+ans[[1]]
+
+parallelStop()
 
 #if you want to visualize the result in terms of objectives
 
-colnames(epop)<-c("auc", "emp", "nf")
-spop <- non_dom_sort(epop, pareto)
-plt <- plot_ly(spop, x=~auc, y=~emp, z=~nf, 
-               color= ~.level, type="scatter3d", mode = 'markers')
-plt
+#colnames(epop)<-c("auc", "emp", "nf")
+#spop <- non_dom_sort(epop, pareto)
 
+#plt
+b <- ans[[2]]
+test_df <- b[[1]]
+
+for(i in b){
+  test_df <- rbind(test_df, i)
+}
+
+tdf <- unique(test_df)
+
+stdf <- non_dom_sort(tdf, pareto)
+
+ab <- stdf[stdf$.level==1,]
+
+ab <- ab %>% select(-.level)
+
+abc <- rbind(a,ab)
+
+tyu <- non_dom_sort(abc,pareto)
+
+plt <- plot_ly(ab, x=~mshare, y=~emp, z=~nf, 
+               #color= ~.level, 
+               type="scatter3d", mode = 'markers')

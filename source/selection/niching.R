@@ -74,7 +74,12 @@ execute_selection <- function(pf, k){
   
   rp <- ref_points(m)
   
-  selected_points <- npf %>% gen_refs(rp) %>% sel_points(npf,k)
+  
+  
+  
+  selected_points <- gen_refs(npf, rp)
+  selected_points <- sel_points(selected_points, npf,k)
+
   return(selected_points)
 }
 
