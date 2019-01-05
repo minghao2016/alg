@@ -88,6 +88,7 @@ ab <- stdf[stdf$.level==1,]
 
 ab <- ab %>% select(-.level)
 
+a <- ans[[1]]$pf_raw$objective_values
 abc <- rbind(a,ab)
 
 tyu <- non_dom_sort(abc,pareto)
