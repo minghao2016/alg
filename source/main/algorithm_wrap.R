@@ -81,8 +81,8 @@ alg <- function(df, target, obj_list, obj_names,
     pop <- res[[1]]
     evaluated_pop <- res[[2]]
 
-print(sorted_evaluated_comb_pop[sorted_evaluated_comb_pop$.level ==1,])    
-print(non_dom_sort(evaluated_pop, pareto))
+#print(sorted_evaluated_comb_pop[sorted_evaluated_comb_pop$.level ==1,])    
+#print(non_dom_sort(evaluated_pop, pareto))
     
 
     plt <- view_pareto(sorted_evaluated_comb_pop, rp)
@@ -92,8 +92,8 @@ print(non_dom_sort(evaluated_pop, pareto))
     current_generation <- current_generation + 1
     
     
-    test_pop <- list(evaluated_pop, pop)
-    all_gens[current_generation] <- test_pop
+    #test_pop <- list(evaluated_pop, pop)
+    #all_gens[current_generation] <- test_pop
     
     #hypervolume
     invisible(capture.output(hpvlm <- hypervolume(sorted_evaluated_comb_pop[which(sorted_evaluated_comb_pop$.level==1),1:m])))
@@ -108,7 +108,8 @@ print(non_dom_sort(evaluated_pop, pareto))
   result <- prep_output(pop. = pop, evaluated_pop. = evaluated_pop, 
                         df = df, threshold = threshold,
                         target = target, objectives = obj_list, 
-                        model = model, 
+                        obj_names. = obj_names,
+                        model = model, pareto = pareto,
                         resampling. = resampling,
                         num_features = num_features,
                         feature_cost = feature_cost)
@@ -116,6 +117,6 @@ print(non_dom_sort(evaluated_pop, pareto))
   end_time <- Sys.time()
   print(paste("Time: ",end_time - start_time))
   
-  abc <- list(result, all_gens)
-  return(abc)
+  #abc <- list(result, all_gens)
+  return(result)
 }

@@ -10,16 +10,17 @@
 
 maj_vote <- function(pop){
   
+  nfeatures <- length(pop[[1]])
   cols <- lapply(pop,as.logical)
   res <- data.frame()
   for(i in 1:length(cols)){
-    for(j in 1:20){
+    for(j in 1:nfeatures){
       res[i,j] <- pop[[i]][j]
     }
   }
   votes <- data.frame()
   names <- colnames(df)[-length(df)]
-  for(i in 1:20){
+  for(i in 1:nfeatures){
     votes[i,1] <- names[i]
     votes[i,2] <- sum(res[,i])/nrow(res)
   }
@@ -29,7 +30,7 @@ maj_vote <- function(pop){
 }
 
 evaluate_maj_vote <- function(vote, threshold,
-                         df, target, objectives, model = model, 
+                         df = df, target = target, objectives, model = model, 
                          resampling. = resampling,
                          num_features = num_features,
                          feature_cost = feature_cost){
@@ -72,7 +73,8 @@ output_per_individual <- function(df, pop, objective_vals){
 
 
 prep_output <- function(pop., evaluated_pop., df, threshold,
-                        target, objectives, model = model, 
+                        target, objectives, model = model,
+                        pareto = pareto, obj_names.,
                          resampling. = resampling,
                          num_features = num_features,
                          feature_cost = feature_cost){
@@ -93,13 +95,14 @@ prep_output <- function(pop., evaluated_pop., df, threshold,
   
   
   votes <- maj_vote(top_gen) 
+  print(votes)
   features <- votes[which(votes$vote >= threshold),]$feature
-  evaluated_vote <- evaluate_maj_vote(votes, threshold,
+  evaluated_vote <- evaluate_maj_vote(votes, threshold = threshold,
                          df, target, objectives, model = model, 
                          resampling. = resampling,
                          num_features = num_features,
                          feature_cost = feature_cost)
-  colnames(evaluated_vote) <- obj_names
+  colnames(evaluated_vote) <- obj_names.
   
   majority_vote <- list(votes, features, evaluated_vote)
   names(majority_vote) <- list("votes", "features", "objective_values")

@@ -36,7 +36,7 @@ mshare <- function(pred){
   cutoff <- m$EMPCfrac
   
   share <- 1 - cutoff
-  print(paste("EMPCS: ", emp, "cutoff: ", cutoff, "share: ", share))
+  #print(paste("EMPCS: ", emp, "cutoff: ", cutoff, "share: ", share))
   
   inv_share <- 1-share
   return(as.numeric(inv_share))
