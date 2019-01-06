@@ -42,7 +42,7 @@ for(f in datasets){
       objective = "binary:logistic",
       eval_metric = "error",
       early_stopping_rounds = 10,
-      nrounds = 1000,
+      nrounds = 10,
       max_depth = params$max_depth,
       lambda = params$lambda,
       alpha = params$alpha,
@@ -59,3 +59,7 @@ for(f in datasets){
   experiment(df, xgb_learner)
   
 }
+
+
+
+

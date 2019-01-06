@@ -8,7 +8,7 @@
 
 
 
-maj_vote <- function(pop){
+maj_vote <- function(pop, df.){
   
   nfeatures <- length(pop[[1]])
   cols <- lapply(pop,as.logical)
@@ -19,7 +19,7 @@ maj_vote <- function(pop){
     }
   }
   votes <- data.frame()
-  names <- colnames(df)[-length(df)]
+  names <- colnames(df.)[-length(df.)]
   for(i in 1:nfeatures){
     votes[i,1] <- names[i]
     votes[i,2] <- sum(res[,i])/nrow(res)
@@ -30,7 +30,7 @@ maj_vote <- function(pop){
 }
 
 evaluate_maj_vote <- function(vote, threshold,
-                         df = df, target = target, objectives, model = model, 
+                         df., target = target, objectives, model = model, 
                          resampling. = resampling,
                          num_features = num_features,
                          feature_cost = feature_cost){
@@ -44,7 +44,7 @@ evaluate_maj_vote <- function(vote, threshold,
   }
   ind <- vote$vote
   
-  evaluated <- evaluate_ind(ind, df, target, objectives, model = model, 
+  evaluated <- evaluate_ind(ind, df = df., target, objectives, model = model, 
                          resampling. = resampling,
                          num_features = num_features,
                          feature_cost = feature_cost)
@@ -52,8 +52,8 @@ evaluate_maj_vote <- function(vote, threshold,
   return(evaluated)
 }
 
-output_per_individual <- function(df, pop, objective_vals){
-  feature_names <- colnames(df)[1:ncol(df)-1]
+output_per_individual <- function(df., pop, objective_vals){
+  feature_names <- colnames(df.)[1:ncol(df.)-1]
   
   rownames(objective_vals) <- 1:nrow(objective_vals)
   
@@ -72,7 +72,7 @@ output_per_individual <- function(df, pop, objective_vals){
 
 
 
-prep_output <- function(pop., evaluated_pop., df, threshold,
+prep_output <- function(pop., evaluated_pop., df., threshold,
                         target, objectives, model = model,
                         pareto = pareto, obj_names.,
                          resampling. = resampling,
@@ -91,14 +91,14 @@ prep_output <- function(pop., evaluated_pop., df, threshold,
   raw <- list(top_gen, pf)
   names(raw) <- c("ind", "objective_values")
   
-  per_ind <- output_per_individual(df, top_gen, pf)
+  per_ind <- output_per_individual(df. = df., top_gen, pf)
   
   
-  votes <- maj_vote(top_gen) 
+  votes <- maj_vote(top_gen, df.) 
   print(votes)
   features <- votes[which(votes$vote >= threshold),]$feature
   evaluated_vote <- evaluate_maj_vote(votes, threshold = threshold,
-                         df, target, objectives, model = model, 
+                         df. = df., target, objectives, model = model, 
                          resampling. = resampling,
                          num_features = num_features,
                          feature_cost = feature_cost)

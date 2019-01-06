@@ -19,6 +19,14 @@ alg <- function(df, target, obj_list, obj_names,
   
   start_time <- Sys.time()
   print("Initializing algorithm ...")
+  
+  
+  #replace target column at the end
+  forder <- colnames(df)
+  forder <- forder[-which(forder == target)]
+  forder <- c(forder, target)
+  df <- df[,forder]
+print(colnames(df))  
   #m = number of objective functions
   m <- length(obj_names)
   
@@ -106,7 +114,7 @@ alg <- function(df, target, obj_list, obj_names,
   }
   
   result <- prep_output(pop. = pop, evaluated_pop. = evaluated_pop, 
-                        df = df, threshold = threshold,
+                        df. = df, threshold = threshold,
                         target = target, objectives = obj_list, 
                         obj_names. = obj_names,
                         model = model, pareto = pareto,

@@ -17,7 +17,7 @@ experiment <- function(df, xgb_learner){
   
   
   start_time <- Sys.time()
-  ans <- alg(df, "BAD", obj_list, obj_names, pareto, 
+  ans <- alg(df = df, target = "BAD", obj_list, obj_names, pareto, 
              n = 5, max_gen = 1, 
              model = xgb_learner,
              resampling = resampling,
@@ -34,8 +34,9 @@ experiment <- function(df, xgb_learner){
   
   output_path.file = paste0(output_path,".RData")
   
-  write.csv(ans$pf_raw$objective_values)
+  csv_raw <- write.csv(ans$pf_raw$objective_values)
   save(ans, file = output_path.file)
+  save(csv_raw, file = output_path)
    
   return(ans)
 }
