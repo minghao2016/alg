@@ -19,6 +19,8 @@ data.folder <- "alg/data"
 source(file.path(code.folder, "alg_builder.R"))
 source(file.path(test.folder, "obj_funs.R"))
 source(file.path(test.folder, "model.R"))
+output.folder <- "alg/output/"
+
 
 #getting input ready
 
@@ -51,7 +53,7 @@ experiment <- function(f, xgb_learner){
   
   start_time <- Sys.time()
   ans <- alg(df, "BAD", obj_list, obj_names, pareto, 
-             n = 50, max_gen = 50, 
+             n = 50, max_gen = 150, 
              model = xgb_learner,
              resampling = resampling,
              num_features = TRUE,
@@ -72,6 +74,9 @@ experiment <- function(f, xgb_learner){
    
   return(ans)
 }
+
+a<-experiment(f, xgb_learner)
+
 #if you want to visualize the result in terms of objectives
 
 #colnames(epop)<-c("auc", "emp", "nf")
