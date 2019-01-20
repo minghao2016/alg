@@ -19,18 +19,17 @@ train_model <- function(df, target = "BAD"){
   model <- makeLearner( "classif.xgboost", predict.type = "prob")
   
   #
-  random_tune <- makeTuneControlRandom(maxit = 10L)
+  random_tune <- makeTuneControlRandom(maxit = 10000L)
   
   # Define parameters of model and search grid ~ !!!! MODEL SPECIFIC !!!!
   model_Params <- makeParamSet(
-    makeIntegerParam("nrounds",lower=10,upper=20),
-    makeIntegerParam("max_depth",lower=1,upper=5),
-    makeNumericParam("lambda",lower=0.55,upper=0.60),
-    makeNumericParam("eta", lower = 0.001, upper = 0.5),
-    makeNumericParam("alpha", lower = 0.001, upper = 0.5),
-    makeNumericParam("subsample", lower = 0.10, upper = 0.80),
-    makeNumericParam("min_child_weight",lower=1,upper=5),
-    makeNumericParam("colsample_bytree",lower = 0.2,upper = 0.8)
+    makeIntegerParam("max_depth",lower=1,upper=8),
+    makeNumericParam("lambda",lower=0.001,upper=0.30),
+    makeNumericParam("eta", lower = 0.001, upper = 0.3),
+    makeNumericParam("alpha", lower = 0.001, upper = 0.3),
+    makeNumericParam("subsample", lower = 0.70, upper = 1.0),
+    makeNumericParam("min_child_weight",lower=0,upper=5),
+    makeNumericParam("colsample_bytree",lower = 0.7,upper = 1.0)
   )
   
   parallelStartSocket(2)
