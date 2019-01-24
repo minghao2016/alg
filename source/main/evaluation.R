@@ -107,9 +107,11 @@ evaluate_population <- function(pop, df, target, objectives,
                                        num_features = num_features,
                                        feature_cost = feature_cost)
   
-  evaluated_pop <- data.frame()
+  evaluated_pop_res <- data.frame()
   
-  evaluated_pop <- do.call(rbind, evaluated_pop_list)
+  evaluated_pop_res <- do.call(rbind, evaluated_pop_list)
+  
+  return(evaluated_pop_res)
 }
 ################################################################## here
 
