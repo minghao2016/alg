@@ -6,7 +6,7 @@
 #######################################################################################
 
 target <- "BAD"  
-n <- 10
+n <- 20
 max_gen <- 100
 model <- xgb_learner
 num_features <- TRUE
@@ -27,6 +27,8 @@ feature_cost <- FALSE
   initial_pop <- generate_init_pop(df, n)    
   
   #getting values for objective functions
+  
+  
   evaluated_pop <- evaluate_population(pop = initial_pop, df = df, target = target, 
                                        objectives = obj_list, 
                                        model = model,

@@ -36,8 +36,8 @@ experiment <- function(f, xgb_learner){
   
   
   
-  costs <- runif(n = 20, min = 1, max = 20)
-  names(costs) <- colnames(df[1:(ncol(df)-1)])
+  #costs <- runif(n = 20, min = 1, max = 20)
+  #names(costs) <- colnames(df[1:(ncol(df)-1)])
   #specify the name of the target column in the data
   #target <- "GOOD"
   #n <- 50 # number of individs per population
@@ -53,7 +53,7 @@ experiment <- function(f, xgb_learner){
   
   start_time <- Sys.time()
   ans <- alg(df, "BAD", obj_list, obj_names, pareto, 
-             n = 50, max_gen = 150, 
+             n = 100, max_gen = 100, 
              model = xgb_learner,
              resampling = resampling,
              num_features = TRUE,
@@ -67,7 +67,7 @@ experiment <- function(f, xgb_learner){
  
   output_path = paste0(output.folder, f)
   
-  output_path.file = paste0(output_path,".RData")
+  output_path.file = paste0(output_path,"1.RData")
   
   write.csv(ans$pf_raw$objective_values)
   save(ans, file = output_path.file)

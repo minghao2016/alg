@@ -25,13 +25,13 @@ f_auc <- function(pred){
 }
 
 emp <- function(pred){
-  m <- empCreditScoring(pred$data$prob.1, pred$data$truth)
+  m <- EMP::empCreditScoring(pred$data$prob.1, pred$data$truth)
   emp <- m$EMPC
   return(as.numeric(1-emp))
 }
 
 mshare <- function(pred){
-  m <- empCreditScoring(pred$data$prob.1, pred$data$truth)
+  m <- EMP::empCreditScoring(pred$data$prob.1, pred$data$truth)
   emp <- m$EMPC
   cutoff <- m$EMPCfrac
   
