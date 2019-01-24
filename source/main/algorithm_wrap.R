@@ -26,7 +26,7 @@ alg <- function(df, target, obj_list, obj_names,
   forder <- forder[-which(forder == target)]
   forder <- c(forder, target)
   df <- df[,forder]
-print(colnames(df))  
+  
   #m = number of objective functions
   m <- length(obj_names)
   
@@ -38,6 +38,11 @@ print(colnames(df))
   #generating initial population
   initial_pop <- generate_init_pop(df, n)    
   
+  
+  #Measure approx time per loop
+  
+  eval_start <- Sys.time()
+  
   #getting values for objective functions
   evaluated_pop <- evaluate_population(pop = initial_pop, df = df, target = target, 
                                        objectives = obj_list, 
@@ -46,6 +51,11 @@ print(colnames(df))
                                        num_features = num_features,
                                        feature_cost = feature_cost)
   colnames(evaluated_pop)<-obj_names
+  
+  eval_end <- Sys.time()
+  print(paste("Init evaluation time: ",capture.output(eval_end - eval_start)))
+  print(paste("Approx. run time: ",capture.output((eval_end - eval_start)*max_gen)))
+              
   
   current_generation <- 0
   
@@ -113,6 +123,10 @@ print(colnames(df))
     
   }
   
+  end_time <- Sys.time()
+  
+  ex_time <- end_time - start_time
+  
   result <- prep_output(pop. = pop, evaluated_pop. = evaluated_pop, 
                         df. = df, threshold = threshold,
                         target = target, objectives = obj_list, 
@@ -120,9 +134,10 @@ print(colnames(df))
                         model = model, pareto = pareto,
                         resampling. = resampling,
                         num_features = num_features,
-                        feature_cost = feature_cost)
+                        feature_cost = feature_cost,
+                        ex_time = ex_time)
   
-  end_time <- Sys.time()
+  
   print(paste("Time: ",end_time - start_time))
   
   #abc <- list(result, all_gens)
