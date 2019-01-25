@@ -20,10 +20,8 @@ evaluate_population <- function(pop, df, target, objectives,
 
 
 #############################################################################
-  evaluate_ind <- function(ind, df, target, objectives, model = model, 
-                           resampling. = resampling,
-                           num_features = num_features,
-                           feature_cost = feature_cost){
+  evaluate_ind <- function(ind, df, target, objectives, model, 
+                           resampling, num_features, feature_cost){
   
   
     select_columns <- function(df, target, ind){

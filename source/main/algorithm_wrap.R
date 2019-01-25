@@ -108,7 +108,7 @@ alg <- function(df, target, obj_list, obj_names,
     iter_end <- Sys.time()
 
     print(paste0("- Iteration ", current_generation, "/", max_gen, 
-                 "   |   Time: ", as.numeric(difftime(iter_end,iter_start), units="mins"), "min"))
+                 "   |   Time: ", as.numeric(difftime(iter_end,iter_start), units="mins"), " min"))
     
   }
   

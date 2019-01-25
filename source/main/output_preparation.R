@@ -31,7 +31,7 @@ maj_vote <- function(pop, df.){
 
 evaluate_maj_vote <- function(vote, threshold,
                          df., target = target, objectives, model = model, 
-                         resampling. = resampling,
+                         resampl = resampling,
                          num_features = num_features,
                          feature_cost = feature_cost){
   
@@ -45,7 +45,7 @@ evaluate_maj_vote <- function(vote, threshold,
   ind <- vote$vote
   
   evaluated <- evaluate_ind(ind, df = df., target, objectives, model = model, 
-                         resampling. = resampling,
+                         resampling = resampl,
                          num_features = num_features,
                          feature_cost = feature_cost)
   
@@ -78,7 +78,7 @@ prep_output <- function(pop., evaluated_pop., df., threshold,
                          resampling. = resampling,
                          num_features = num_features,
                          feature_cost = feature_cost,
-                        ex_time){
+                         ex_time.){
   
   rownames(evaluated_pop.) <- 1:nrow(evaluated_pop.)
   sorted_fin_pop <- non_dom_sort(evaluated_pop., pareto)
@@ -98,18 +98,18 @@ prep_output <- function(pop., evaluated_pop., df., threshold,
   votes <- maj_vote(top_gen, df.) 
   print(votes)
   features <- votes[which(votes$vote >= threshold),]$feature
-  evaluated_vote <- evaluate_maj_vote(votes, threshold = threshold,
-                         df. = df., target, objectives, model = model, 
-                         resampling. = resampling,
-                         num_features = num_features,
-                         feature_cost = feature_cost)
-  colnames(evaluated_vote) <- obj_names.
+  #evaluated_vote <- evaluate_maj_vote(votes, threshold = threshold,
+  #                       df. = df., target, objectives, model = model, 
+  #                       resampl = resampling.,
+  #                       num_features = num_features,
+  #                       feature_cost = feature_cost)
+  #colnames(evaluated_vote) <- obj_names.
   
-  majority_vote <- list(votes, features, evaluated_vote)
-  names(majority_vote) <- list("votes", "features", "objective_values")
+  majority_vote <- list(votes, features)
+  names(majority_vote) <- list("votes", "features")
   
   
-  result <- list(raw, per_ind, majority_vote, list(ex_time))
+  result <- list(raw, per_ind, majority_vote, list(ex_time.))
   
   names(result) <- c("pf_raw", "per_ind", "majority_vote", "time")
   return(result)
