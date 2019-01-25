@@ -53,9 +53,7 @@ alg <- function(df, target, obj_list, obj_names,
   colnames(evaluated_pop)<-obj_names
   
   eval_end <- Sys.time()
-  print(paste("Init evaluation time: ",capture.output(eval_end - eval_start)))
-  print(paste("Approx. run time: ",capture.output((eval_end - eval_start)*max_gen)))
-              
+  print(paste("- Time: ",as.numeric(difftime(eval_end,eval_start), units="mins"), "min"))
   
   current_generation <- 0
   
@@ -67,6 +65,7 @@ alg <- function(df, target, obj_list, obj_names,
   
   while(current_generation < max_gen){
     
+    iter_start <- Sys.time()
     
     # assigning new id's to previously selected pouints
     rownames(evaluated_pop) <- 1:nrow(evaluated_pop)
@@ -75,7 +74,7 @@ alg <- function(df, target, obj_list, obj_names,
     children <- create_children(pop) 
     
     #mutation
-    mutated_children <- mutate_pop(children, 0.1)
+    mutated_children <- mutate_pop(children, mutation_rate)
     
     #evaluate obj fns for children
     evaluated_children <- evaluate_population(pop = mutated_children,df = df, target = target, 
@@ -99,27 +98,17 @@ alg <- function(df, target, obj_list, obj_names,
     pop <- res[[1]]
     evaluated_pop <- res[[2]]
 
-#print(sorted_evaluated_comb_pop[sorted_evaluated_comb_pop$.level ==1,])    
-#print(non_dom_sort(evaluated_pop, pareto))
-    
 
     plt <- view_pareto(sorted_evaluated_comb_pop, rp)
     print(plt)
     
-    #ideal_point <- compute_ideal_point(sorted_evaluated_comb_pop)[-length(sorted_evaluated_comb_pop)]
     current_generation <- current_generation + 1
     
     
-    #test_pop <- list(evaluated_pop, pop)
-    #all_gens[current_generation] <- test_pop
-    
-    #hypervolume
-    invisible(capture.output(hpvlm <- hypervolume(sorted_evaluated_comb_pop[which(sorted_evaluated_comb_pop$.level==1),1:m])))
-    
+    iter_end <- Sys.time()
+
     print(paste0("- Iteration ", current_generation, "/", max_gen, 
-                 "   |   Hypervolume: ", hpvlm@Volume))
-    
-    #print(paste("  Ideal point: ",ideal_point, collapse = " : "))
+                 "   |   Time: ", as.numeric(difftime(iter_end,iter_start), units="mins"), "min"))
     
   }
   

@@ -77,7 +77,8 @@ prep_output <- function(pop., evaluated_pop., df., threshold,
                         pareto = pareto, obj_names.,
                          resampling. = resampling,
                          num_features = num_features,
-                         feature_cost = feature_cost){
+                         feature_cost = feature_cost,
+                        ex_time){
   
   rownames(evaluated_pop.) <- 1:nrow(evaluated_pop.)
   sorted_fin_pop <- non_dom_sort(evaluated_pop., pareto)
@@ -108,8 +109,8 @@ prep_output <- function(pop., evaluated_pop., df., threshold,
   names(majority_vote) <- list("votes", "features", "objective_values")
   
   
-  result <- list(raw, per_ind, majority_vote)
+  result <- list(raw, per_ind, majority_vote, list(ex_time))
   
-  names(result) <- c("pf_raw", "per_ind", "majority_vote")
+  names(result) <- c("pf_raw", "per_ind", "majority_vote", "time")
   return(result)
 }
